@@ -117,6 +117,18 @@ export function t(key: string): string {
 export const NAVIGATION_CONFIG = config.navigation ?? { categories: [] };
 export const NAV_CATEGORIES = NAVIGATION_CONFIG.categories ?? [];
 
+// 项目配置
+export const PROJECT_CONFIG = config.project ?? { items: [] };
+export const PROJECT_ITEMS = PROJECT_CONFIG.items ?? [];
+
+// 友链配置
+export const FRIEND_CONFIG = config.friend ?? { items: [], sites: [] };
+export const FRIEND_ITEMS = FRIEND_CONFIG.items ?? [];
+export const SHOWCASE_SITES = FRIEND_CONFIG.sites ?? [];
+
+// 关于页面配置
+export const ABOUT_CONFIG = config.about ?? { name: '', title: '', avatar: '', bio: [], github: '', techStack: [] };
+
 // Umami 配置接口
 export interface UmamiConfig {
   enable: boolean;

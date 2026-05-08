@@ -1,8 +1,9 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { NavigationConfigPage } from '@/components/write/NavigationConfigPage';
+import { NAV_CATEGORIES } from '@/config';
 ---
 
 <BaseLayout title="导航配置" showSidebar={false} showBanner={false} isIndexed={false}>
-    <NavigationConfigPage client:only="react" />
+    <NavigationConfigPage client:only="react" initialCategories={NAV_CATEGORIES} />
 </BaseLayout>

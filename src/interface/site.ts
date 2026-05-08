@@ -195,6 +195,54 @@ export interface NavigationConfig {
   categories: NavCategory[];
 }
 
+// 项目配置类型
+export interface ProjectItem {
+  name: string;
+  avatar: string;
+  description: string;
+  url: string;
+  badge?: string;
+}
+
+export interface ProjectConfig {
+  items: ProjectItem[];
+}
+
+// 友链配置类型
+export interface FriendItem {
+  name: string;
+  avatar: string;
+  description: string;
+  url: string;
+  badge?: string;
+}
+
+export interface ShowcaseSite {
+  name: string;
+  url: string;
+}
+
+export interface FriendConfig {
+  items: FriendItem[];
+  sites?: ShowcaseSite[];
+}
+
+// 关于页面配置类型
+export interface TechStackItem {
+  name: string;
+  icon: string;
+  color?: string;
+}
+
+export interface AboutConfig {
+  name: string;
+  title: string;
+  avatar: string;
+  bio: string[];
+  github: string;
+  techStack: TechStackItem[];
+}
+
 import type { UmamiConfig } from "../config";
 export interface Config {
   site: SiteConfig;
@@ -204,4 +252,7 @@ export interface Config {
   anime?: AnimeConfig;
   github?: GithubConfig;
   navigation?: NavigationConfig;
+  project?: ProjectConfig;
+  friend?: FriendConfig;
+  about?: AboutConfig;
 }
