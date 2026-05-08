@@ -22,7 +22,7 @@ site:
   icp_link: https://icp.gov.moe/?keyword=20261117
   pages:
     home:
-      title:  Blog
+      title: Blog
       subtitle: 欲买桂花同载酒，终不似，少年游！
       typewriterTexts:
         - 🌸 欲买桂花同载酒，终不似，少年游！
@@ -320,6 +320,16 @@ navigation:
           badge: 好用的加速器
           badgeIcon: lucide:zap
           badgeColor: amber
+        - name: qq音乐
+          avatar: >-
+            https://img.shiyangya.dpdns.org/file/tx/1777965744394_da7981aea730bf0c0409e2072d067ef9.webp
+          description: hhhh
+          url: https://www.baidu.com
+          category: ''
+          badge: qq音乐
+          badgeIcon: lucide:award
+          badgeColor: violet
+          id: ENT4
     - title: Useful Resources
       icon: lucide:bookmark
       items:
