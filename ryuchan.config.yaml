@@ -152,15 +152,6 @@ navigation:
     - title: 开发工具
       icon: lucide:code
       items:
-        - name: Umami
-          avatar: https://img.131714.xyz/file/Logo/1753850918996_umami.png
-          description: 网站访问统计分析平台
-          url: https://umami.is/dashboard
-          category: 统计分析
-          id: DEV001
-          badge: 推荐使用
-          badgeIcon: lucide:thumbs-up
-          badgeColor: rose
         - name: Vercel
           avatar: https://img.131714.xyz/file/Logo/1753851435981_Vercel.png
           description: 现代化的前端部署平台
@@ -170,15 +161,6 @@ navigation:
           badge: Astro 官方推荐
           badgeIcon: lucide:star
           badgeColor: amber
-        - name: Iconify
-          avatar: https://iconify.design/favicon.ico
-          description: 海量图标库和图标搜索工具
-          url: https://iconify.design/
-          category: 图标设计
-          id: DEV003
-          badge: 图标资源
-          badgeIcon: lucide:image
-          badgeColor: sky
         - name: Iconfont
           avatar: https://img.131714.xyz/file/Logo/DEPF9Ovv.png
           description: 阿里巴巴图标库
@@ -311,64 +293,6 @@ navigation:
           badge: 丰富的影视资源
           badgeIcon: lucide:film
           badgeColor: rose
-        - name: 宝可梦节点
-          avatar: https://love.52pokemon66.cc/favicon.ico
-          description: 网络代理服务
-          url: https://love.p6m6.com/
-          category: 代理服务
-          id: ENT003
-          badge: 好用的加速器
-          badgeIcon: lucide:zap
-          badgeColor: amber
-        - name: qq音乐
-          avatar: >-
-            https://img.shiyangya.dpdns.org/file/tx/1777965744394_da7981aea730bf0c0409e2072d067ef9.webp
-          description: hhhh
-          url: https://www.baidu.com
-          category: ''
-          badge: qq音乐
-          badgeIcon: lucide:award
-          badgeColor: violet
-          id: ENT4
-    - title: Useful Resources
-      icon: lucide:bookmark
-      items:
-        - name: Astro
-          avatar: https://img.131714.xyz/file/Logo/HXADhsBn.png
-          description: Astro是一个现代化的静态网站生成器
-          url: https://docs.astro.build
-          category: 文档
-          id: RES001
-          badge: 前端框架
-          badgeIcon: lucide:layout
-          badgeColor: sky
-        - name: Tailwind
-          avatar: https://img.131714.xyz/file/Logo/mrp0EiyB.png
-          description: Tailwind CSS是一个功能类优先的CSS框架
-          url: https://tailwindcss.com/docs
-          category: 文档
-          id: RES002
-          badge: CSS 框架
-          badgeIcon: lucide:file-code-2
-          badgeColor: sky
-        - name: DaisyUI
-          avatar: https://img.131714.xyz/file/Logo/WEl6nL3H.svg
-          description: DaisyUI是一个基于Tailwind CSS的组件库
-          url: https://daisyui.com/components/
-          category: UI 框架
-          id: RES003
-          badge: Tailwind 组件库
-          badgeIcon: lucide:box
-          badgeColor: rose
-        - name: TypeScript
-          avatar: https://img.131714.xyz/file/Logo/FL3XpMDh.png
-          description: TypeScript是JavaScript的超集
-          url: https://www.typescriptlang.org/docs/handbook/intro.html
-          category: 文档
-          id: RES004
-          badge: JavaScript 超集
-          badgeIcon: lucide:file-code-2
-          badgeColor: sky
 project:
   items:
     - name: HomePage
