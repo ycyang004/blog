@@ -2,10 +2,8 @@
 import BaseLayout from "@layouts/BaseLayout.astro";
 import NavigationCard from "@components/mdx/NavigationCard.astro";
 import { Icon } from "astro-icon/components";
-import { NAV_DATA } from "../data/navData";
+import { NAV_CATEGORIES } from "../config";
 
-// 扁平化所有数据以供搜索和"全部"分类使用
-const allItems = NAV_DATA.flatMap(category => category.items);
 ---
 
 <BaseLayout title="导航" isIndexed={false}>
@@ -35,7 +33,7 @@ const allItems = NAV_DATA.flatMap(category => category.items);
         >
           全部
         </button>
-        {NAV_DATA.map((category) => (
+        {NAV_CATEGORIES.map((category) => (
           <button
             class="category-btn px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 bg-base-100 text-base-content/60 hover:bg-base-200 hover:text-primary hover:shadow-md hover:-translate-y-0.5"
             data-category={category.title}
@@ -47,7 +45,7 @@ const allItems = NAV_DATA.flatMap(category => category.items);
 
       <!-- 资源网格 -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="resources-grid">
-        {NAV_DATA.flatMap(category => 
+        {NAV_CATEGORIES.flatMap(category =>
           category.items.map(item => ({ ...item, parentCategory: category.title }))
         ).map((item) => (
           <div 
@@ -104,7 +102,7 @@ const allItems = NAV_DATA.flatMap(category => category.items);
 </script>
 
 <!-- 重新实现带逻辑的脚本 -->
-<script is:inline define:vars={{ navData: NAV_DATA }}>
+<script is:inline define:vars={{ navData: NAV_CATEGORIES }}>
   document.addEventListener('astro:page-load', () => {
     const searchInput = document.getElementById('search-input');
     const categoryBtns = document.querySelectorAll('.category-btn');

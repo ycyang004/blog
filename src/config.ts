@@ -113,6 +113,10 @@ export function t(key: string): string {
   return translationCache[key];
 }
 
+// 导航配置
+export const NAVIGATION_CONFIG = config.navigation ?? { categories: [] };
+export const NAV_CATEGORIES = NAVIGATION_CONFIG.categories ?? [];
+
 // Umami 配置接口
 export interface UmamiConfig {
   enable: boolean;

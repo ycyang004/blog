@@ -172,6 +172,29 @@ export interface AnimeConfig {
   tmdb?: TmdbConfig;
 }
 
+// 导航配置类型
+export interface NavItem {
+  name: string;
+  avatar: string;
+  description: string;
+  url: string;
+  category: string;
+  id?: string;
+  badge?: string;
+  badgeIcon?: string;
+  badgeColor?: string;
+}
+
+export interface NavCategory {
+  title: string;
+  icon: string;
+  items: NavItem[];
+}
+
+export interface NavigationConfig {
+  categories: NavCategory[];
+}
+
 import type { UmamiConfig } from "../config";
 export interface Config {
   site: SiteConfig;
@@ -180,4 +203,5 @@ export interface Config {
   comments?: CommentsConfig;
   anime?: AnimeConfig;
   github?: GithubConfig;
+  navigation?: NavigationConfig;
 }

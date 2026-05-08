@@ -1,4 +1,40 @@
 en:
+  navEditor:
+    title: Navigation Config
+    addCategory: Add Category
+    addItem: Add Resource
+    save: Save
+    saving: Saving...
+    categoryTitle: Category Title
+    categoryIcon: Icon
+    itemName: Name
+    itemUrl: URL
+    itemAvatar: Avatar URL
+    itemDescription: Description
+    itemCategory: Sub Category
+    itemBadge: Badge Text
+    itemBadgeIcon: Badge Icon
+    itemBadgeColor: Badge Color
+    deleteCategory: Delete Category
+    deleteItem: Delete Item
+    confirmDeleteCategory: Delete this category and all its resources?
+    confirmDeleteItem: Delete this resource?
+    noCategories: No categories, click "Add Category" to create one
+    noItems: No resources in this category, click "Add Resource" to create one
+    selectCategory: Select a category to edit
+    preview: Preview
+    saveSuccess: Navigation config saved! Changes will be deployed automatically.
+    saveFailed: Save failed
+    loading: Loading...
+    uploadingImage: Uploading image...
+    moveUp: Move up
+    moveDown: Move down
+    editCategory: Edit Category
+    editItem: Edit Resource
+    errorNoCategory: Please create a category first
+    errorLoadConfig: Failed to load config
+    authentication: Authentication
+    importKey: Import Key (.pem)
   label:
     pageviews: "views"
     visits: "visits"
@@ -61,6 +97,42 @@ en:
     11: November
     12: December
 zh:
+  navEditor:
+    title: 导航配置
+    addCategory: 添加分类
+    addItem: 添加资源
+    save: 保存配置
+    saving: 保存中...
+    categoryTitle: 分类标题
+    categoryIcon: 图标
+    itemName: 名称
+    itemUrl: 链接地址
+    itemAvatar: 头像地址
+    itemDescription: 描述
+    itemCategory: 子分类
+    itemBadge: 徽章文本
+    itemBadgeIcon: 徽章图标
+    itemBadgeColor: 徽章颜色
+    deleteCategory: 删除分类
+    deleteItem: 删除资源
+    confirmDeleteCategory: 确定删除该分类及其所有资源吗？
+    confirmDeleteItem: 确定删除该资源吗？
+    noCategories: 暂无分类，点击"添加分类"创建
+    noItems: 该分类下暂无资源，点击"添加资源"创建
+    selectCategory: 请选择一个分类进行编辑
+    preview: 预览
+    saveSuccess: 导航配置保存成功！将自动重新部署。
+    saveFailed: 保存失败
+    loading: 加载中...
+    uploadingImage: 上传图片中...
+    moveUp: 上移
+    moveDown: 下移
+    editCategory: 编辑分类
+    editItem: 编辑资源
+    errorNoCategory: 请先创建分类
+    errorLoadConfig: 配置加载失败
+    authentication: 身份验证
+    importKey: 导入密钥 (.pem)
   label:
     pageviews: "浏览量"
     visits: "访问数"

@@ -1,3 +1,8 @@
+/**
+ * @deprecated 导航数据已迁移至 ryuchan.config.yaml 的 navigation 配置节，请通过 /admin/navigation 在线编辑器管理。
+ * 本文件仅保留作为初始种子数据，不应再直接修改。
+ * 如需在代码中使用导航数据，请改用 src/config.ts 导出的 NAV_CATEGORIES。
+ */
 export interface NavItem {
     name: string;
     avatar: string;
