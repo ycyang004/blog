@@ -112,35 +112,23 @@ github:
   appId: 在部署端配置环境变量
   encryptKey: wudishiduomejimo
 umami:
-  enable: true
+  enable: false
   baseUrl: https://umami.131714.xyz
   shareId: jToXL5Z3hnA1gKUw
   websiteId: 3f9afc6c-f0bd-4734-be15-6d053960d34d
   timezone: Asia/Shanghai
 user:
-  name: KoBariDev
+  name: A
   description: Ciallo～(∠・ω<)⌒★
-  site: https://hub.131714.xyz
-  avatar: /profile.png
+  site: https://blog.shiyangya.dpdns.org
+  avatar: >-
+    https://img.shiyangya.dpdns.org/file/tx/1777965747775_d739368efe132f90ff29ea5da82c860f.webp
   sidebar:
     social:
-      - href: https://github.com/kobaridev
+      - href: https://github.com/ycyang004
         ariaLabel: Github
         title: Github
         svg: ri:github-line
-      - href: https://space.bilibili.com/1536411565
-        ariaLabel: BiliBili
-        title: BiliBili
-        svg: ri:bilibili-line
-      - href: >-
-          https://www.douyin.com/user/MS4wLjABAAAAeO0sqJYUgh1a26GkVPtS2yv_IOODjeqvtl4KSjvsntg?from_tab_name=main
-        ariaLabel: Douyin
-        title: Douyin
-        svg: ri:tiktok-line
-      - href: https://weibo.com/u/7579913510
-        title: Weibo
-        ariaLabel: Weibo
-        svg: ri:weibo-fill
   footer:
     social:
       - href: https://github.com/kobaridev
@@ -160,7 +148,7 @@ user:
         title: Telegram
         svg: ri:telegram-line
 comments:
-  enable: true
+  enable: false
   type: giscus
   giscus:
     repo: kobaridev/gsc
