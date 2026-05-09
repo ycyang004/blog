@@ -306,6 +306,11 @@ project:
       description: ''
       url: https://img.shiyangya.dpdns.org/
       badge: ''
+    - name: MyFriendBlog
+      avatar: https://demo.131714.xyz/profile.png
+      description: ''
+      url: https://demo.131714.xyz/project
+      badge: ''
 friend:
   items:
     - name: KoBariDev
