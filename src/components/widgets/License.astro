@@ -2,8 +2,9 @@
 import dayjs from "@utils/dayjs";  
 import { USER_NAME, DATE_FORMAT, t, umamiConfig } from "@config";  
 import type { PostData } from "@interfaces/data";  
-import { Icon } from "astro-icon/components";  
-import PostFilter from "./PostFilter.astro";  
+import { Icon } from "astro-icon/components";
+import PostFilter from "./PostFilter.astro";
+import LikeButton from "./LikeButton";  
   
 const { title, url, pubDate, badge, categories = [], tags = [], word, time } = Astro.props as PostData;  
 const displayDate = pubDate ? dayjs(pubDate).format(DATE_FORMAT) : "";  
@@ -129,15 +130,17 @@ const socialLinks = [
               </a>  
             </div>  
             <div class="flex gap-2">
+              <!-- Like Button -->
+              {slug && <LikeButton slug={slug} client:load />}
               <!-- Reward Button -->
               <button class="btn btn-secondary btn-outline" onclick="reward_modal.showModal()">
                 赞赏
                 <Icon name="ri:hand-heart-line" class="w-5 h-5" />
               </button>
-              <!-- Share Button -->  
-              <button class="btn btn-primary btn-outline" onclick="share_modal.showModal()">  
-                {t("label.share")}  
-                <Icon name="ri:share-line" class="w-5 h-5" />  
+              <!-- Share Button -->
+              <button class="btn btn-primary btn-outline" onclick="share_modal.showModal()">
+                {t("label.share")}
+                <Icon name="ri:share-line" class="w-5 h-5" />
               </button>
             </div>  
           </div>  
