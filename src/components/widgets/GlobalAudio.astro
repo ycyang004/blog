@@ -81,6 +81,7 @@ const initialSong = musicList[0] || {};
             this._playlistLoadId = 0;
             this._pinyin = null;
             this._pinyinLoading = false;
+            this._mergeSelected = new Set();
 
             // Initial binding
             this.handlePageLoad();
@@ -147,6 +148,7 @@ const initialSong = musicList[0] || {};
 
             // Bind playlist selector (Meting playlists)
             this.bindPlaylistSelector();
+            this.bindMergeButtons();
 
             // Sync playback status with audio element
             if (this.audio && !this.audio.paused) {
@@ -460,6 +462,176 @@ const initialSong = musicList[0] || {};
                 this._pinyinLoading = false;
             };
             document.head.appendChild(script);
+        }
+
+        // ── Merge Playlists ──
+        bindMergeButtons() {
+            const checks = document.querySelectorAll('.meting-merge-check');
+            checks.forEach(btn => {
+                if (btn.dataset.boundMerge) return;
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.dataset.playlistId;
+                    if (id) this.toggleMergeSelect(id, btn);
+                });
+                btn.dataset.boundMerge = "true";
+            });
+
+            const mergeBtn = document.getElementById('btn-merge-playlists');
+            if (mergeBtn && !mergeBtn.dataset.boundMerge) {
+                mergeBtn.addEventListener('click', () => this.mergeSelectedPlaylists());
+                mergeBtn.dataset.boundMerge = "true";
+            }
+        }
+
+        toggleMergeSelect(playlistId, btn) {
+            if (this._mergeSelected.has(playlistId)) {
+                this._mergeSelected.delete(playlistId);
+                btn.classList.remove('bg-primary', 'text-white', 'border-primary');
+                btn.classList.add('border-dashed', 'border-neu-border/50', 'text-neu-text-muted');
+                btn.querySelector('svg')?.classList.remove('hidden');
+                // Remove check icon if any
+                const checkSvg = btn.querySelector('.merge-check-icon');
+                if (checkSvg) checkSvg.remove();
+            } else {
+                this._mergeSelected.add(playlistId);
+                btn.classList.add('bg-primary', 'text-white', 'border-primary');
+                btn.classList.remove('border-dashed', 'border-neu-border/50', 'text-neu-text-muted');
+                // Replace "+" icon with check
+                const svg = btn.querySelector('svg');
+                if (svg) {
+                    svg.classList.add('hidden');
+                    const check = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    check.setAttribute('width', '12');
+                    check.setAttribute('height', '12');
+                    check.setAttribute('viewBox', '0 0 24 24');
+                    check.setAttribute('fill', 'none');
+                    check.setAttribute('stroke', 'currentColor');
+                    check.setAttribute('stroke-width', '3');
+                    check.setAttribute('stroke-linecap', 'round');
+                    check.setAttribute('stroke-linejoin', 'round');
+                    check.classList.add('merge-check-icon');
+                    check.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+                    btn.appendChild(check);
+                }
+            }
+            this.updateMergeUI();
+        }
+
+        updateMergeUI() {
+            const mergeBtn = document.getElementById('btn-merge-playlists');
+            if (!mergeBtn) return;
+            const count = this._mergeSelected.size;
+            if (count >= 2) {
+                mergeBtn.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+                mergeBtn.classList.add('opacity-100');
+                mergeBtn.textContent = `合并所选 (${count})`;
+            } else {
+                mergeBtn.classList.add('hidden', 'opacity-0', 'pointer-events-none');
+                mergeBtn.classList.remove('opacity-100');
+            }
+        }
+
+        async mergeSelectedPlaylists() {
+            const ids = [...this._mergeSelected];
+            if (ids.length < 2) return;
+
+            const mergeBtn = document.getElementById('btn-merge-playlists');
+            if (mergeBtn) mergeBtn.textContent = '加载中...';
+
+            try {
+                // Fetch all selected playlists in parallel
+                const fetches = ids.map(id =>
+                    fetch(`https://163.hyc.moe?server=netease&type=playlist&id=${id}`)
+                        .then(r => r.ok ? r.json() : null)
+                        .catch(() => null)
+                );
+                const results = await Promise.all(fetches);
+
+                // Combine and deduplicate by song URL id
+                const seen = new Set();
+                const merged = [];
+                const trans = true;
+
+                results.forEach(songs => {
+                    if (!Array.isArray(songs)) return;
+                    songs.forEach(item => {
+                        const songId = item.url_id || (item.url ? new URL(item.url).searchParams.get('id') : null);
+                        const key = songId || item.name + '|' + (item.artist || '');
+                        if (seen.has(key)) return;
+                        seen.add(key);
+
+                        let songUrl = (item.url || '').replace(/http:\/\//g, 'https://');
+                        let lrcUrl = (item.lrc || '').replace(/http:\/\//g, 'https://');
+                        if (songUrl) songUrl += '&br=320';
+                        if (trans && lrcUrl) lrcUrl += '&trans=true';
+
+                        merged.push({
+                            title: item.name || 'Unknown',
+                            artist: item.artist || item.artist_name || 'Unknown',
+                            cover: (item.pic || '').replace(/http:\/\//g, 'https://'),
+                            url: songUrl,
+                            lrc: lrcUrl,
+                            duration: '',
+                        });
+                    });
+                });
+
+                if (merged.length === 0) {
+                    if (mergeBtn) mergeBtn.textContent = '无歌曲';
+                    return;
+                }
+
+                // Fetch durations in background
+                const loadId = ++this._playlistLoadId;
+                this.fetchAndApplyDurations(merged, loadId).catch(() => {});
+
+                // Replace playlist
+                this.playlist = merged;
+                this.currentIndex = 0;
+                this.playOrder = [];
+                this.lyrics = [];
+                this.lrcUrl = '';
+                this._mergeSelected.clear();
+
+                // Re-render UI
+                this.renderPlaylistList(merged);
+
+                // Update merge UI
+                this.updateMergeUI();
+                if (mergeBtn) mergeBtn.textContent = '合并所选';
+
+                // Reset merge check buttons
+                document.querySelectorAll('.meting-merge-check').forEach(btn => {
+                    btn.classList.remove('bg-primary', 'text-white', 'border-primary');
+                    btn.classList.add('border-dashed', 'border-neu-border/50', 'text-neu-text-muted');
+                    const svg = btn.querySelector('svg:not(.merge-check-icon)');
+                    if (svg) svg.classList.remove('hidden');
+                    btn.querySelectorAll('.merge-check-icon').forEach(c => c.remove());
+                });
+
+                // Load first song
+                if (this.playlist.length > 0) {
+                    this.loadSong(0, this.isPlaying);
+                }
+
+                // Reset search
+                if (this.playlistSearch) {
+                    this.playlistSearch.value = '';
+                    this.filterPlaylist('');
+                }
+
+                // Update active playlist button - clear all
+                document.querySelectorAll('.meting-pl-item').forEach(b => {
+                    b.classList.remove('bg-primary/10', 'border-primary', 'text-primary');
+                    b.querySelectorAll('.meting-pl-active-dot').forEach(d => d.remove());
+                });
+
+                console.log(`Merged ${ids.length} playlists → ${merged.length} unique songs`);
+            } catch (e) {
+                console.error('Merge failed:', e);
+                if (mergeBtn) mergeBtn.textContent = '合并失败';
+            }
         }
 
         // ── Play Order ──
@@ -1347,6 +1519,7 @@ const initialSong = musicList[0] || {};
         newInstance.isMiniOpen = oldInstance.isMiniOpen;
         newInstance.playOrder = oldInstance.playOrder;
         newInstance._playlistLoadId = oldInstance._playlistLoadId;
+        newInstance._mergeSelected = oldInstance._mergeSelected;
         
         // cleanup old events/timers if necessary
         if(oldInstance.closeTimer) clearTimeout(oldInstance.closeTimer);
