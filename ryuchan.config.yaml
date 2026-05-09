@@ -136,7 +136,8 @@ user:
         ariaLabel: Github
         title: Github
         svg: ri:github-line
-      - href: https://space.bilibili.com/1536411565
+      <!-- 
+        - href: https://space.bilibili.com/1536411565
         ariaLabel: BiliBili
         title: BiliBili
         svg: ri:bilibili-line
@@ -144,6 +145,7 @@ user:
         ariaLabel: X(twitter)
         title: X(twitter)
         svg: ri:twitter-line
+        -->
       - href: https://t.me/xzz_ya
         ariaLabel: Telegram
         title: Telegram
