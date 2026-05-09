@@ -76,6 +76,7 @@ const initialSong = musicList[0] || {};
             this.closeTimer = null;
             this.isDraggingProgress = false;
             this.isDraggingVolume = false;
+            this.playlistSearch = null;
 
             // Initial binding
             this.handlePageLoad();
@@ -120,6 +121,7 @@ const initialSong = musicList[0] || {};
                 this.btnPlaylist = document.getElementById('btn-show-playlist');
                 this.btnLyrics = document.getElementById('btn-show-lyrics');
                 this.playlistContainer = document.getElementById('playlist-container');
+                this.playlistSearch = document.getElementById('playlist-search');
                 this.playerTitle = document.getElementById('player-title');
                 this.playerArtist = document.getElementById('player-artist');
                 this.bgCover = document.getElementById('player-bg-cover');
@@ -265,7 +267,15 @@ const initialSong = musicList[0] || {};
                 this.btnLyrics.addEventListener('click', () => this.switchView('lyrics'));
                 this.btnLyrics.dataset.bound = "true";
             }
-            
+
+            // Playlist Search
+            if(this.playlistSearch && !this.playlistSearch.dataset.bound) {
+                this.playlistSearch.addEventListener('input', (e) => {
+                    this.filterPlaylist(e.target?.value || '');
+                });
+                this.playlistSearch.dataset.bound = "true";
+            }
+
             // Progress Bar Dragging
             if(this.progressContainer && !this.progressContainer.dataset.bound) {
                 const startProgressDrag = (e) => {
@@ -345,6 +355,22 @@ const initialSong = musicList[0] || {};
                        this.loadSong(index, true);
                    }
                 });
+            });
+        }
+
+        filterPlaylist(query) {
+            const q = query.toLowerCase().trim();
+            const items = document.querySelectorAll('.playlist-item');
+            let hasVisible = false;
+            items.forEach(item => {
+                const title = item.querySelector('h3')?.textContent?.toLowerCase() || '';
+                const artist = item.querySelector('p')?.textContent?.toLowerCase() || '';
+                if (!q || title.includes(q) || artist.includes(q)) {
+                    item.classList.remove('hidden');
+                    hasVisible = true;
+                } else {
+                    item.classList.add('hidden');
+                }
             });
         }
 
@@ -527,6 +553,11 @@ const initialSong = musicList[0] || {};
                 this.btnPlaylist?.classList.add('bg-neu-btn-bg', 'text-neu-btn-text', 'shadow-sm');
                 this.btnLyrics?.classList.add('text-neu-text-muted');
                 this.btnLyrics?.classList.remove('bg-neu-btn-bg', 'text-neu-btn-text', 'shadow-sm');
+                // Clear search and reset filter
+                if (this.playlistSearch) {
+                    this.playlistSearch.value = '';
+                    this.filterPlaylist('');
+                }
             } else {
                 this.lyricsContainer?.classList.remove('hidden');
                 this.playlistContainer?.classList.add('hidden');
