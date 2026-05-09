@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { AboutConfig, AboutSiteSection, TechStackItem } from '@interfaces/site'
+import type { AboutConfig, AboutSiteConfig, AboutSiteSection, TechStackItem } from '@interfaces/site'
+
+type ResolvedAboutConfig = Omit<AboutConfig, 'aboutSite'> & { aboutSite: AboutSiteConfig }
 
 export interface AboutEditorState {
   data: AboutConfig
@@ -55,11 +57,11 @@ const defaultData: AboutConfig = {
   aboutSite: defaultAboutSite,
 }
 
-function ensureAboutSite(data: AboutConfig) {
+function ensureAboutSite(data: AboutConfig): ResolvedAboutConfig {
   if (!data.aboutSite) {
     return { ...data, aboutSite: { ...defaultAboutSite } }
   }
-  return data
+  return data as ResolvedAboutConfig
 }
 
 export const useAboutEditorStore = create<AboutEditorState>()(

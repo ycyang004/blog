@@ -4,7 +4,7 @@ import { useAuthStore } from './hooks/use-auth'
 import { useAboutEditorStore } from './stores/about-store'
 import { loadConfigSection, saveConfigSection } from './services/save-config-section'
 import { readFileAsText } from '@/lib/file-utils'
-import type { AboutConfig, AboutSiteSection, TechStackItem } from '@interfaces/site'
+import type { AboutConfig, TechStackItem } from '@interfaces/site'
 
 // ─────────────────────────────────────── Tech Stack Edit Modal ───────────────────────────────────────
 
