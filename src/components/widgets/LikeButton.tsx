@@ -1,66 +1,115 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 const STORAGE_KEY = 'ryuchan-post-likes'
 
-interface LikesData {
-  [slug: string]: { count: number; liked: boolean }
+interface LocalLikeState {
+  [slug: string]: boolean // true = this browser has liked
 }
 
-function loadLikes(): LikesData {
+function getLocalLiked(slug: string): boolean {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : {}
+    if (!raw) return false
+    const data: LocalLikeState = JSON.parse(raw)
+    return !!data[slug]
   } catch {
-    return {}
+    return false
   }
 }
 
-function saveLikes(data: LikesData) {
+function setLocalLiked(slug: string, liked: boolean) {
   try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    const data: LocalLikeState = raw ? JSON.parse(raw) : {}
+    data[slug] = liked
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
   } catch { /* storage full */ }
 }
 
+async function fetchCount(slug: string): Promise<number> {
+  try {
+    const res = await fetch(`/api/likes?slug=${encodeURIComponent(slug)}`)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const json = await res.json()
+    return typeof json.count === 'number' ? json.count : 0
+  } catch {
+    throw new Error('Network error')
+  }
+}
+
+async function postLike(slug: string, action: 'like' | 'unlike'): Promise<number> {
+  const res = await fetch('/api/likes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slug, action }),
+  })
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}))
+    throw new Error(json.error || `HTTP ${res.status}`)
+  }
+  const json = await res.json()
+  return json.count
+}
+
 export default function LikeButton({ slug }: { slug: string }) {
   const [count, setCount] = useState(0)
-  const [liked, setLiked] = useState(false)
+  const [liked, setLiked] = useState(() => getLocalLiked(slug))
   const [animating, setAnimating] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const pendingRef = useRef(false) // prevents double-click while request is in flight
 
-  // Hydrate from localStorage on mount
+  // On mount: fetch server count
   useEffect(() => {
-    const data = loadLikes()
-    const entry = data[slug]
-    if (entry) {
-      setCount(entry.count)
-      setLiked(entry.liked)
-    }
+    const localLiked = getLocalLiked(slug)
+    // Show a fallback count while fetching (at least 1 if locally liked)
+    if (localLiked) setCount(1)
+
+    fetchCount(slug)
+      .then((serverCount) => {
+        setCount(serverCount)
+      })
+      .catch(() => {
+        // If fetch fails, keep the local fallback count
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }, [slug])
 
-  const toggle = useCallback(() => {
-    const data = loadLikes()
-    const entry = data[slug] || { count: 0, liked: false }
+  const toggle = useCallback(async () => {
+    if (pendingRef.current) return
+    pendingRef.current = true
 
-    if (entry.liked) {
-      // Unlike
-      entry.liked = false
-      entry.count = Math.max(0, entry.count - 1)
-    } else {
-      // Like
-      entry.liked = true
-      entry.count += 1
+    const wasLiked = liked
+    const newLiked = !wasLiked
+    const action = newLiked ? 'like' : 'unlike'
+
+    // Optimistic update
+    setLiked(newLiked)
+    setLocalLiked(slug, newLiked)
+    setCount((prev) => (newLiked ? prev + 1 : Math.max(0, prev - 1)))
+    if (newLiked) {
       setAnimating(true)
       setTimeout(() => setAnimating(false), 400)
     }
 
-    data[slug] = entry
-    saveLikes(data)
-    setCount(entry.count)
-    setLiked(entry.liked)
-  }, [slug])
+    try {
+      const serverCount = await postLike(slug, action)
+      setCount(serverCount)
+    } catch {
+      // Revert on failure
+      setLiked(wasLiked)
+      setLocalLiked(slug, wasLiked)
+      setCount((prev) => (wasLiked ? prev + 1 : Math.max(0, prev - 1)))
+    } finally {
+      pendingRef.current = false
+    }
+  }, [slug, liked])
 
   return (
     <button
       onClick={toggle}
+      disabled={loading}
       className={`btn btn-sm gap-1.5 transition-all duration-200 ${
         liked
           ? 'btn-error text-error-content'
