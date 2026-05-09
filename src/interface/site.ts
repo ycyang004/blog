@@ -95,6 +95,10 @@ export interface SiteConfig {
     id?: string;
     br?: string;
     trans?: boolean;
+    playlists?: {
+      name: string;
+      id: string;
+    }[];
   };
   date_format: string;
   blog: BlogConfig;

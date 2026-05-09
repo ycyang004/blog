@@ -53,6 +53,9 @@ site:
     id: '17955614084'
     br: '400'
     trans: true
+    playlists:
+      - name: 默认歌单
+        id: '17955614084'
   menu:
     - id: home
       text: 首页

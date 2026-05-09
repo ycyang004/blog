@@ -686,6 +686,74 @@ export function ConfigPage() {
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div className="divider my-0"></div>
+
+                                        {/* Playlists */}
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-medium">歌单列表</span>
+                                                    <span className="text-xs text-base-content/40">（点击切换播放）</span>
+                                                </div>
+                                                <button
+                                                    className="btn btn-xs btn-outline btn-primary"
+                                                    onClick={() => {
+                                                        const playlists = [...(parsedConfig?.site?.meting?.playlists || [])]
+                                                        playlists.push({ name: '', id: '' })
+                                                        updateConfigValue('site.meting.playlists', playlists)
+                                                    }}
+                                                >
+                                                    + 添加歌单
+                                                </button>
+                                            </div>
+                                            <div className="space-y-2">
+                                                {(parsedConfig?.site?.meting?.playlists || []).map((pl: any, idx: number) => (
+                                                    <div key={idx} className="flex items-center gap-3 bg-base-200/50 p-3 rounded-xl group hover:bg-base-200 transition-colors">
+                                                        <div className="w-8 h-8 rounded-lg bg-base-100 flex items-center justify-center text-xs font-bold text-base-content/40 shadow-sm shrink-0">
+                                                            {idx + 1}
+                                                        </div>
+                                                        <div className="flex-1 grid grid-cols-2 gap-3">
+                                                            <input
+                                                                type="text"
+                                                                className="input input-sm input-bordered w-full bg-base-100 focus:border-primary"
+                                                                placeholder="歌单名称"
+                                                                value={pl.name || ''}
+                                                                onChange={e => {
+                                                                    const playlists = [...(parsedConfig?.site?.meting?.playlists || [])]
+                                                                    playlists[idx] = { ...playlists[idx], name: e.target.value }
+                                                                    updateConfigValue('site.meting.playlists', playlists)
+                                                                }}
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                className="input input-sm input-bordered w-full bg-base-100 focus:border-primary"
+                                                                placeholder="网易云歌单ID"
+                                                                value={pl.id || ''}
+                                                                onChange={e => {
+                                                                    const playlists = [...(parsedConfig?.site?.meting?.playlists || [])]
+                                                                    playlists[idx] = { ...playlists[idx], id: e.target.value }
+                                                                    updateConfigValue('site.meting.playlists', playlists)
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <button
+                                                            className="btn btn-xs btn-ghost btn-square text-error opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            onClick={() => {
+                                                                const playlists = [...(parsedConfig?.site?.meting?.playlists || [])]
+                                                                playlists.splice(idx, 1)
+                                                                updateConfigValue('site.meting.playlists', playlists)
+                                                            }}
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                {(!parsedConfig?.site?.meting?.playlists || parsedConfig.site.meting.playlists.length === 0) && (
+                                                    <p className="text-xs text-base-content/40 text-center py-4">暂无歌单，点击上方按钮添加</p>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

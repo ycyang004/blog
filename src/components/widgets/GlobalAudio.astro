@@ -142,6 +142,9 @@ const initialSong = musicList[0] || {};
                 this.updateOrderBadges();
             }
 
+            // Bind playlist selector (Meting playlists)
+            this.bindPlaylistSelector();
+
             // Sync playback status with audio element
             if (this.audio && !this.audio.paused) {
                  this.isPlaying = true;
@@ -437,6 +440,144 @@ const initialSong = musicList[0] || {};
         clearPlayOrder() {
             this.playOrder = [];
             this.updateOrderBadges();
+        }
+
+        // ── Meting Playlist Selector ──
+        bindPlaylistSelector() {
+            const selector = document.getElementById('meting-playlist-selector');
+            if (!selector) return;
+            const buttons = selector.querySelectorAll('.meting-pl-item');
+            buttons.forEach(btn => {
+                if (btn.dataset.boundPl) return;
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.playlistId;
+                    const name = btn.dataset.playlistName;
+                    if (id) this.loadPlaylistById(id, name);
+                });
+                btn.dataset.boundPl = "true";
+            });
+        }
+
+        async loadPlaylistById(playlistId, playlistName) {
+            if (!playlistId) return;
+
+            // Update active state on buttons
+            const buttons = document.querySelectorAll('.meting-pl-item');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-primary/10', 'border-primary', 'text-primary');
+                const dot = btn.querySelector('.meting-pl-active-dot');
+                if (btn.dataset.playlistId === playlistId) {
+                    btn.classList.add('bg-primary/10', 'border-primary', 'text-primary');
+                }
+                // Remove any existing active dots
+                btn.querySelectorAll('.meting-pl-active-dot').forEach(d => d.remove());
+            });
+            // Add active dot to the clicked one
+            const activeBtn = document.querySelector(`.meting-pl-item[data-playlist-id="${playlistId}"]`);
+            if (activeBtn) {
+                const dot = document.createElement('span');
+                dot.className = 'ml-auto text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full shrink-0 meting-pl-active-dot';
+                dot.textContent = '加载中...';
+                activeBtn.appendChild(dot);
+            }
+
+            try {
+                const apiUrl = `https://163.hyc.moe?server=netease&type=playlist&id=${playlistId}`;
+                const res = await fetch(apiUrl);
+                if (!res.ok) throw new Error(`API error: ${res.status}`);
+                const data = await res.json();
+
+                if (!data || data.length === 0) {
+                    if (activeBtn) {
+                        const dot = activeBtn.querySelector('.meting-pl-active-dot');
+                        if (dot) dot.textContent = '空';
+                    }
+                    return;
+                }
+
+                const trans = true; // default to translation enabled
+                const newPlaylist = data.map(item => {
+                    let songUrl = (item.url || '').replace(/http:\/\//g, 'https://');
+                    let lrcUrl = (item.lrc || '').replace(/http:\/\//g, 'https://');
+
+                    if (songUrl) songUrl += '&br=320';
+                    if (trans && lrcUrl) lrcUrl += '&trans=true';
+
+                    return {
+                        title: item.name || 'Unknown',
+                        artist: item.artist || item.artist_name || 'Unknown',
+                        cover: (item.pic || '').replace(/http:\/\//g, 'https://'),
+                        url: songUrl,
+                        lrc: lrcUrl,
+                        duration: '',
+                    };
+                });
+
+                // Replace playlist
+                this.playlist = newPlaylist;
+                this.currentIndex = 0;
+                this.playOrder = [];
+                this.lyrics = [];
+                this.lrcUrl = '';
+
+                // Update playlist list UI
+                const playlistList = document.getElementById('playlist-list');
+                if (playlistList) {
+                    playlistList.innerHTML = newPlaylist.map((item, idx) => `
+                        <li class="playlist-item group flex items-center gap-3 p-3 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 border border-transparent transition-all cursor-pointer" data-index="${idx}">
+                            <span class="font-mono text-neu-text-muted text-sm font-bold w-6 text-center group-hover:text-neu-accent transition-colors">${(idx + 1).toString().padStart(2, '0')}</span>
+                            <div class="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-neu-border/50">
+                                <img src="${item.cover || 'https://music.apple.com/assets/product/1000/images/default-cover-icon-d36802.svg'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="cover" loading="lazy"/>
+                                <div class="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-[.active]:opacity-100 transition-opacity">
+                                    <div class="w-1.5 h-4 gap-0.5 flex items-end justify-center">
+                                        <div class="w-0.5 bg-white h-2 animate-pulse"></div>
+                                        <div class="w-0.5 bg-white h-3 animate-pulse delay-75"></div>
+                                        <div class="w-0.5 bg-white h-1 animate-pulse delay-150"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                                <h3 class="font-bold text-neu-text truncate text-sm leading-none group-[.active]:text-neu-accent transition-colors">${item.title}</h3>
+                                <p class="text-[11px] text-neu-text-muted truncate uppercase tracking-wider">${item.artist}</p>
+                            </div>
+                            <div class="text-xs font-mono text-neu-text-muted font-bold playlist-duration">${item.duration || '--:--'}</div>
+                            <button class="playlist-order-btn w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all shrink-0 border border-dashed border-neu-border/50 text-neu-text-muted hover:border-primary hover:text-primary" data-index="${idx}" title="点击设置播放顺序">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </button>
+                        </li>
+                    `).join('');
+
+                    // Re-bind playlist events
+                    this.bindPlaylistEvents();
+                    this.bindOrderButtons();
+                    this.updateOrderBadges();
+                }
+
+                // Update active dot text
+                if (activeBtn) {
+                    const dot = activeBtn.querySelector('.meting-pl-active-dot');
+                    if (dot) dot.textContent = '当前';
+                }
+
+                // Load first song
+                if (this.playlist.length > 0) {
+                    this.loadSong(0, this.isPlaying);
+                }
+
+                // Update search if present
+                if (this.playlistSearch) {
+                    this.playlistSearch.value = '';
+                    this.filterPlaylist('');
+                }
+
+                console.log(`Loaded playlist "${playlistName}" with ${newPlaylist.length} songs`);
+            } catch (e) {
+                console.error('Failed to load playlist:', e);
+                if (activeBtn) {
+                    const dot = activeBtn.querySelector('.meting-pl-active-dot');
+                    if (dot) dot.textContent = '失败';
+                }
+            }
         }
 
         getNextFromOrder() {

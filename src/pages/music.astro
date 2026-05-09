@@ -2,12 +2,16 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import MusicPlayer from "@/components/widgets/MusicPlayer.astro";
 import { musicList } from "@/data/music";
+import { METING_CONFIG } from "@/config";
+
+const metingPlaylists = METING_CONFIG.playlists || [{ name: "默认歌单", id: METING_CONFIG.id || "17955614084" }];
 ---
 
 <BaseLayout title="音乐" showSidebar={true} showTOC={false} isIndexed={false}>
   <div class="max-w-4xl mx-auto py-8 px-4">
-    <MusicPlayer 
+    <MusicPlayer
       list={musicList}
+      playlists={metingPlaylists}
     />
   </div>
 </BaseLayout>
