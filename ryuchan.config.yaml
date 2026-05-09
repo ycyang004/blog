@@ -23,8 +23,9 @@ site:
   pages:
     home:
       title: Blog
-      subtitle: 欲买桂花同载酒，终不似，少年游！
+      subtitle: 东风夜放花千树，更吹落、星如雨
       typewriterTexts:
+        - 🌸 东风夜放花千树，更吹落、星如雨！！！
         - 🌸 欲买桂花同载酒，终不似，少年游！
         - 🌸 花有重开日，人无再少年！
         - 🌿 记录生活的点滴，分享美好的瞬间！
@@ -49,7 +50,7 @@ site:
       subtitle: 沉浸式享受音乐时光
   meting:
     server: netease
-    id: '17933567326'
+    id: '17955614084'
     br: '400'
     trans: true
   menu:
@@ -294,7 +295,29 @@ navigation:
           badgeIcon: lucide:film
           badgeColor: rose
 project:
-  items: []
+  items:
+    - name: Blog
+      avatar: >-
+        https://img.shiyangya.dpdns.org/file/tx/1777965689638_0fda015c370738031da0f9dc15b4d75b.webp
+      description: ''
+      url: https://github.com/ycyang004/blog
+      badge: ''
+    - name: MyMapBed
+      avatar: >-
+        https://img.shiyangya.dpdns.org/file/BengTie/1777968356623_wallhaven-yx38rd.jpg
+      description: paqu的图片，上传密码123456
+      url: https://img.shiyangya.dpdns.org/
+      badge: ''
+    - name: MyFriendBlog
+      avatar: https://demo.131714.xyz/profile.png
+      description: ''
+      url: https://demo.131714.xyz/project
+      badge: ''
+    - name: OpenList
+      avatar: ''
+      description: 内网穿透
+      url: https://openlist.shiyangya.dpdns.org/
+      badge: ''
 friend:
   items:
     - name: KoBariDev
