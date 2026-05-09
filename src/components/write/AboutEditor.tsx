@@ -4,7 +4,7 @@ import { useAuthStore } from './hooks/use-auth'
 import { useAboutEditorStore } from './stores/about-store'
 import { loadConfigSection, saveConfigSection } from './services/save-config-section'
 import { readFileAsText } from '@/lib/file-utils'
-import type { AboutConfig, TechStackItem } from '@interfaces/site'
+import type { AboutConfig, AboutSiteSection, TechStackItem } from '@interfaces/site'
 
 // ─────────────────────────────────────── Tech Stack Edit Modal ───────────────────────────────────────
 
@@ -66,6 +66,9 @@ export function AboutEditor({ initialData }: { initialData: AboutConfig }) {
     initData, setEditMode, setLoading, setSaving, setIsDirty,
     updateField, updateBio, addBio, removeBio, moveBio,
     updateTechItem, addTechItem, removeTechItem, moveTechItem,
+    updateAboutSiteIntro, addAboutSiteSection, updateAboutSiteSectionTitle,
+    removeAboutSiteSection, moveAboutSiteSection,
+    addAboutSiteItem, updateAboutSiteItem, removeAboutSiteItem, moveAboutSiteItem,
   } = useAboutEditorStore()
 
   const { isAuth, setPrivateKey } = useAuthStore()
@@ -237,33 +240,74 @@ export function AboutEditor({ initialData }: { initialData: AboutConfig }) {
               </div>
             </section>
 
-            {/* About This Site (static — not editable) */}
+            {/* About This Site — editable */}
             <section>
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                 <span>关于本站</span>
               </h2>
-              <div className="prose prose-base dark:prose-invert max-w-none">
-                <p>这是我的个人博客，一个简洁、优雅、快速的静态博客系统，基于 Astro 5.0+ & Tailwind CSS 构建。</p>
-                <h3 className="text-xl font-bold mt-4 mb-2">核心特色</h3>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>📝 <strong>在线发布</strong>：无需本地环境，浏览器中直接编写和发布文章</li>
-                  <li>⚙️ <strong>可视化配置</strong>：Web界面管理网站设置，零代码操作</li>
-                  <li>🚀 <strong>极速体验</strong>：基于 Astro 构建，提供极速的访问速度与优秀的 SEO</li>
-                  <li>🎨 <strong>优雅设计</strong>：使用 Tailwind CSS 与 daisyUI，支持深色/浅色主题</li>
-                  <li>📱 <strong>完美适配</strong>：移动端优先的响应式设计，优化卡片布局与网格导航</li>
-                  <li>🔍 <strong>智能搜索</strong>：集成 Pagefind，毫秒级全文搜索</li>
-                  <li>⚡ <strong>流畅动画</strong>：ClientRouter 实现丝滑的页面过渡效果</li>
-                </ul>
-                <h3 className="text-xl font-bold mt-4 mb-2">功能亮点</h3>
-                <ul className="list-disc list-inside space-y-1">
-                  <li>📚 <strong>追番管理</strong>：集成 TMDB API，记录和分享喜欢的动漫作品</li>
-                  <li>🧭 <strong>网站导航</strong>：分类整理常用工具和资源链接</li>
-                  <li>👥 <strong>友链展示</strong>：展示朋友们的优秀博客和项目</li>
-                  <li>📊 <strong>数据统计</strong>：集成 Umami 分析，了解网站访问情况</li>
-                  <li>💬 <strong>评论系统</strong>：支持 Giscus 和 Waline，与读者互动交流</li>
-                </ul>
-              </div>
+
+              {editMode ? (
+                <div className="space-y-6">
+                  {/* Intro */}
+                  <div>
+                    <label className="text-xs font-medium text-base-content/60 mb-1 block">简介</label>
+                    <textarea className="textarea textarea-bordered textarea-sm w-full bg-base-200 text-sm"
+                      value={data.aboutSite?.intro || ''}
+                      onChange={(e) => updateAboutSiteIntro(e.target.value)}
+                      rows={3} placeholder="关于本站的介绍文字..." />
+                  </div>
+
+                  {/* Sections */}
+                  {(data.aboutSite?.sections || []).map((section, si) => (
+                    <div key={si} className="bg-base-200 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <input className="input input-sm input-bordered flex-1 bg-base-100 font-bold text-sm"
+                          value={section.title}
+                          onChange={(e) => updateAboutSiteSectionTitle(si, e.target.value)}
+                          placeholder="段落标题" />
+                        <button className="btn btn-xs btn-ghost btn-square" onClick={() => moveAboutSiteSection(si, 'up')} disabled={si === 0}>↑</button>
+                        <button className="btn btn-xs btn-ghost btn-square" onClick={() => moveAboutSiteSection(si, 'down')} disabled={si === (data.aboutSite?.sections?.length || 1) - 1}>↓</button>
+                        <button className="btn btn-xs btn-ghost btn-square text-error" onClick={() => removeAboutSiteSection(si)}>✕</button>
+                      </div>
+
+                      {/* Section items */}
+                      <div className="space-y-2 pl-2">
+                        {section.items.map((item, ii) => (
+                          <div key={ii} className="flex gap-1">
+                            <input className="input input-sm input-bordered flex-1 bg-base-100 text-sm"
+                              value={item}
+                              onChange={(e) => updateAboutSiteItem(si, ii, e.target.value)}
+                              placeholder="列表项内容..." />
+                            <button className="btn btn-xs btn-ghost btn-square" onClick={() => moveAboutSiteItem(si, ii, 'up')} disabled={ii === 0}>↑</button>
+                            <button className="btn btn-xs btn-ghost btn-square" onClick={() => moveAboutSiteItem(si, ii, 'down')} disabled={ii === section.items.length - 1}>↓</button>
+                            <button className="btn btn-xs btn-ghost btn-square text-error" onClick={() => removeAboutSiteItem(si, ii)}>✕</button>
+                          </div>
+                        ))}
+                        <button className="btn btn-xs btn-outline border-dashed" onClick={() => addAboutSiteItem(si)}>+ 添加列表项</button>
+                      </div>
+                    </div>
+                  ))}
+
+                  <button className="btn btn-sm btn-outline border-dashed w-full" onClick={addAboutSiteSection}>
+                    + 添加段落
+                  </button>
+                </div>
+              ) : (
+                <div className="prose prose-base dark:prose-invert max-w-none">
+                  {data.aboutSite?.intro && <p>{data.aboutSite.intro}</p>}
+                  {(data.aboutSite?.sections || []).map((section, si) => (
+                    <div key={si}>
+                      <h3 className="text-xl font-bold mt-4 mb-2">{section.title}</h3>
+                      <ul className="list-disc list-inside space-y-1">
+                        {section.items.map((item, ii) => (
+                          <li key={ii}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
             </section>
 
             {/* Tech Stack */}
