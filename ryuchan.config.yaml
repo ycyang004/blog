@@ -312,6 +312,11 @@ project:
       description: ''
       url: https://demo.131714.xyz/project
       badge: ''
+    - name: OpenList
+      avatar: ''
+      description: 内网穿透
+      url: https://openlist.shiyangya.dpdns.org/
+      badge: ''
 friend:
   items:
     - name: KoBariDev
