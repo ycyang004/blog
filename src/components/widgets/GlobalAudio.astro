@@ -78,6 +78,7 @@ const initialSong = musicList[0] || {};
             this.isDraggingVolume = false;
             this.playlistSearch = null;
             this.playOrder = [];
+            this._playlistLoadId = 0;
 
             // Initial binding
             this.handlePageLoad();
@@ -465,22 +466,20 @@ const initialSong = musicList[0] || {};
             const buttons = document.querySelectorAll('.meting-pl-item');
             buttons.forEach(btn => {
                 btn.classList.remove('bg-primary/10', 'border-primary', 'text-primary');
-                const dot = btn.querySelector('.meting-pl-active-dot');
-                if (btn.dataset.playlistId === playlistId) {
-                    btn.classList.add('bg-primary/10', 'border-primary', 'text-primary');
-                }
                 // Remove any existing active dots
                 btn.querySelectorAll('.meting-pl-active-dot').forEach(d => d.remove());
             });
-            // Add active dot to the clicked one
+            // Add loading dot to the clicked one
             const activeBtn = document.querySelector(`.meting-pl-item[data-playlist-id="${playlistId}"]`);
             if (activeBtn) {
+                activeBtn.classList.add('bg-primary/10', 'border-primary', 'text-primary');
                 const dot = document.createElement('span');
                 dot.className = 'ml-auto text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full shrink-0 meting-pl-active-dot';
                 dot.textContent = '加载中...';
                 activeBtn.appendChild(dot);
             }
 
+            const loadId = ++this._playlistLoadId;
             try {
                 const apiUrl = `https://163.hyc.moe?server=netease&type=playlist&id=${playlistId}`;
                 const res = await fetch(apiUrl);
@@ -489,13 +488,13 @@ const initialSong = musicList[0] || {};
 
                 if (!data || data.length === 0) {
                     if (activeBtn) {
-                        const dot = activeBtn.querySelector('.meting-pl-active-dot');
-                        if (dot) dot.textContent = '空';
+                        const dotEl = activeBtn.querySelector('.meting-pl-active-dot');
+                        if (dotEl) dotEl.textContent = '空';
                     }
                     return;
                 }
 
-                const trans = true; // default to translation enabled
+                const trans = true;
                 const newPlaylist = data.map(item => {
                     let songUrl = (item.url || '').replace(/http:\/\//g, 'https://');
                     let lrcUrl = (item.lrc || '').replace(/http:\/\//g, 'https://');
@@ -513,6 +512,9 @@ const initialSong = musicList[0] || {};
                     };
                 });
 
+                // Fetch durations from Netease API (non-blocking: render UI first, then update durations)
+                this.fetchAndApplyDurations(newPlaylist, loadId).catch(() => {});
+
                 // Replace playlist
                 this.playlist = newPlaylist;
                 this.currentIndex = 0;
@@ -521,42 +523,12 @@ const initialSong = musicList[0] || {};
                 this.lrcUrl = '';
 
                 // Update playlist list UI
-                const playlistList = document.getElementById('playlist-list');
-                if (playlistList) {
-                    playlistList.innerHTML = newPlaylist.map((item, idx) => `
-                        <li class="playlist-item group flex items-center gap-3 p-3 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 border border-transparent transition-all cursor-pointer" data-index="${idx}">
-                            <span class="font-mono text-neu-text-muted text-sm font-bold w-6 text-center group-hover:text-neu-accent transition-colors">${(idx + 1).toString().padStart(2, '0')}</span>
-                            <div class="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-neu-border/50">
-                                <img src="${item.cover || 'https://music.apple.com/assets/product/1000/images/default-cover-icon-d36802.svg'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="cover" loading="lazy"/>
-                                <div class="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-[.active]:opacity-100 transition-opacity">
-                                    <div class="w-1.5 h-4 gap-0.5 flex items-end justify-center">
-                                        <div class="w-0.5 bg-white h-2 animate-pulse"></div>
-                                        <div class="w-0.5 bg-white h-3 animate-pulse delay-75"></div>
-                                        <div class="w-0.5 bg-white h-1 animate-pulse delay-150"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                                <h3 class="font-bold text-neu-text truncate text-sm leading-none group-[.active]:text-neu-accent transition-colors">${item.title}</h3>
-                                <p class="text-[11px] text-neu-text-muted truncate uppercase tracking-wider">${item.artist}</p>
-                            </div>
-                            <div class="text-xs font-mono text-neu-text-muted font-bold playlist-duration">${item.duration || '--:--'}</div>
-                            <button class="playlist-order-btn w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all shrink-0 border border-dashed border-neu-border/50 text-neu-text-muted hover:border-primary hover:text-primary" data-index="${idx}" title="点击设置播放顺序">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            </button>
-                        </li>
-                    `).join('');
-
-                    // Re-bind playlist events
-                    this.bindPlaylistEvents();
-                    this.bindOrderButtons();
-                    this.updateOrderBadges();
-                }
+                this.renderPlaylistList(newPlaylist);
 
                 // Update active dot text
                 if (activeBtn) {
-                    const dot = activeBtn.querySelector('.meting-pl-active-dot');
-                    if (dot) dot.textContent = '当前';
+                    const dotEl = activeBtn.querySelector('.meting-pl-active-dot');
+                    if (dotEl) dotEl.textContent = '当前';
                 }
 
                 // Load first song
@@ -574,9 +546,98 @@ const initialSong = musicList[0] || {};
             } catch (e) {
                 console.error('Failed to load playlist:', e);
                 if (activeBtn) {
-                    const dot = activeBtn.querySelector('.meting-pl-active-dot');
-                    if (dot) dot.textContent = '失败';
+                    const dotEl = activeBtn.querySelector('.meting-pl-active-dot');
+                    if (dotEl) dotEl.textContent = '失败';
                 }
+            }
+        }
+
+        renderPlaylistList(newPlaylist) {
+            const playlistList = document.getElementById('playlist-list');
+            if (!playlistList) return;
+            playlistList.innerHTML = newPlaylist.map((item, idx) => `
+                <li class="playlist-item group flex items-center gap-3 p-3 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 border border-transparent transition-all cursor-pointer" data-index="${idx}">
+                    <span class="font-mono text-neu-text-muted text-sm font-bold w-6 text-center group-hover:text-neu-accent transition-colors">${(idx + 1).toString().padStart(2, '0')}</span>
+                    <div class="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-neu-border/50">
+                        <img src="${item.cover || 'https://music.apple.com/assets/product/1000/images/default-cover-icon-d36802.svg'}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="cover" loading="lazy"/>
+                        <div class="absolute inset-0 bg-black/10 flex items-center justify-center opacity-0 group-[.active]:opacity-100 transition-opacity">
+                            <div class="w-1.5 h-4 gap-0.5 flex items-end justify-center">
+                                <div class="w-0.5 bg-white h-2 animate-pulse"></div>
+                                <div class="w-0.5 bg-white h-3 animate-pulse delay-75"></div>
+                                <div class="w-0.5 bg-white h-1 animate-pulse delay-150"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                        <h3 class="font-bold text-neu-text truncate text-sm leading-none group-[.active]:text-neu-accent transition-colors">${item.title}</h3>
+                        <p class="text-[11px] text-neu-text-muted truncate uppercase tracking-wider">${item.artist}</p>
+                    </div>
+                    <div class="text-xs font-mono text-neu-text-muted font-bold playlist-duration" data-song-url="${item.url}">--:--</div>
+                    <button class="playlist-order-btn w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all shrink-0 border border-dashed border-neu-border/50 text-neu-text-muted hover:border-primary hover:text-primary" data-index="${idx}" title="点击设置播放顺序">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </button>
+                </li>
+            `).join('');
+
+            this.bindPlaylistEvents();
+            this.bindOrderButtons();
+            this.updateOrderBadges();
+        }
+
+        async fetchAndApplyDurations(playlist, loadId) {
+            // Collect Netease song IDs from URLs
+            const ids = [];
+            const idToIndex = new Map();
+            playlist.forEach((item, idx) => {
+                if (!item.url) return;
+                try {
+                    const u = new URL(item.url);
+                    const songId = u.searchParams.get('id');
+                    if (songId) {
+                        ids.push(songId);
+                        idToIndex.set(songId, idx);
+                    }
+                } catch (e) { /* skip malformed URLs */ }
+            });
+
+            if (ids.length === 0) return;
+
+            try {
+                const res = await fetch(`https://music.163.com/api/song/detail/?id=${ids[0]}&ids=[${ids.join(',')}]`, {
+                    headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                });
+                // Abort if a newer playlist load has started
+                if (this._playlistLoadId !== loadId) return;
+
+                const data = await res.json();
+                if (!data.songs || !Array.isArray(data.songs)) return;
+
+                const formatDuration = (seconds) => {
+                    const min = Math.floor(seconds / 60);
+                    const sec = Math.floor(seconds % 60);
+                    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+                };
+
+                data.songs.forEach(song => {
+                    // Check again per song (cheap)
+                    if (this._playlistLoadId !== loadId) return;
+                    const idx = idToIndex.get(String(song.id));
+                    if (idx !== undefined && song.duration) {
+                        const dur = formatDuration(song.duration / 1000);
+                        playlist[idx].duration = dur;
+
+                        // Update DOM directly
+                        const items = document.querySelectorAll('.playlist-item');
+                        items.forEach(li => {
+                            if (parseInt(li.dataset.index) === idx) {
+                                const durEl = li.querySelector('.playlist-duration');
+                                if (durEl) durEl.textContent = dur;
+                            }
+                        });
+                    }
+                });
+            } catch (e) {
+                console.warn('Failed to fetch song durations:', e);
             }
         }
 
@@ -1206,6 +1267,7 @@ const initialSong = musicList[0] || {};
         newInstance.audio = oldInstance.audio;
         newInstance.isMiniOpen = oldInstance.isMiniOpen;
         newInstance.playOrder = oldInstance.playOrder;
+        newInstance._playlistLoadId = oldInstance._playlistLoadId;
         
         // cleanup old events/timers if necessary
         if(oldInstance.closeTimer) clearTimeout(oldInstance.closeTimer);
