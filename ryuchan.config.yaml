@@ -302,8 +302,9 @@ project:
       url: https://github.com/ycyang004/blog
       badge: ''
     - name: MyMapBed
-      avatar: ''
-      description: ''
+      avatar: >-
+        https://img.shiyangya.dpdns.org/file/BengTie/1777968356623_wallhaven-yx38rd.jpg
+      description: paqu的图片
       url: https://img.shiyangya.dpdns.org/
       badge: ''
     - name: MyFriendBlog
