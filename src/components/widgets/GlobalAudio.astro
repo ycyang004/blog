@@ -6,7 +6,9 @@ const initialSong = musicList[0] || {};
 ---
 <div transition:persist="ryuchan-global-audio-wrapper">
     <!-- 全局音频元素，持久化 -->
-    <audio id="global-audio-player"></audio>
+    <audio id="global-audio-player" preload="auto"></audio>
+    <!-- 预加载下一首的隐藏音频 -->
+    <audio id="global-audio-preload" preload="auto" style="display:none" aria-hidden="true"></audio>
 
     <!-- 迷你播放器容器，只在非音乐页面显示 -->
     <div id="mini-player-container" class="fixed bottom-8 left-8 z-[999] flex flex-col items-start gap-4 pointer-events-none opacity-0 transition-opacity duration-300">
@@ -82,6 +84,8 @@ const initialSong = musicList[0] || {};
             this._pinyin = null;
             this._pinyinLoading = false;
             this._mergeSelected = new Set();
+            this._lastLoadedUrl = '';
+            this._rafId = 0;
 
             // Initial binding
             this.handlePageLoad();
@@ -176,6 +180,7 @@ const initialSong = musicList[0] || {};
 
         bindGlobalAudioEvents() {
              this.audio = document.getElementById('global-audio-player');
+             this._preloadAudio = document.getElementById('global-audio-preload');
              if(this.audio && !this.audio.dataset.hasGlobalEvents) {
                 this.audio.addEventListener('timeupdate', () => this.updateProgress());
                 this.audio.addEventListener('ended', () => this.nextSong(true));
@@ -924,29 +929,61 @@ const initialSong = musicList[0] || {};
 
             this.currentIndex = index;
             const song = this.playlist[index];
-            
-            if (this.audio.src !== song.url && this.audio.src !== new URL(song.url, document.baseURI).href) {
-                this.audio.src = song.url;
-                this.lrcUrl = song.lrc || (song.url ? song.url.replace(/\.[^/.]+$/, ".lrc") : "");
-                this.lyrics = []; // Clear lyrics
-                this.hasLyrics = !!song.lrc; // 标记是否有歌词
+            const url = song.url;
+
+            // Fast same-song check: compare against last loaded URL string
+            if (this._lastLoadedUrl !== url) {
+                this._lastLoadedUrl = url;
+                this.audio.src = url;
+                this.lrcUrl = song.lrc || url.replace(/\.[^/.]+$/, ".lrc");
+                this.lyrics = [];
             }
 
-            if(autoPlay) {
-                this.audio.play().catch(e => console.error(e));
-            } else {
-                 if (this.isPlaying) this.audio.play(); 
+            // ── Critical path: play immediately ──
+            if (autoPlay || this.isPlaying) {
+                this.audio.play().catch(e => { /* ignore autoplay blocks */ });
             }
-            
-            this.updateUI();
-            this.loadLyrics();
-            
-             if('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: song.title || 'Unknown Title',
-                    artist: song.artist || 'Unknown Artist',
-                    artwork: [{ src: song.cover || '/favicon.svg', sizes: '512x512', type: 'image/png' }]
-                });
+
+            // ── Non-critical: defer UI + lyrics + preload to next frame ──
+            if (this._rafId) cancelAnimationFrame(this._rafId);
+            this._rafId = requestAnimationFrame(() => {
+                this.updateUI();
+                this.loadLyrics();
+                this.preloadNext();
+                // MediaSession
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: song.title || 'Unknown Title',
+                        artist: song.artist || 'Unknown Artist',
+                        artwork: [{ src: song.cover || '/favicon.svg', sizes: '512x512', type: 'image/png' }]
+                    });
+                }
+            });
+        }
+
+        preloadNext() {
+            // Determine next index based on current state
+            let nextIdx;
+            if (this.playOrder.length > 0) {
+                nextIdx = this.playOrder[0];
+            } else if (this.repeatMode === 'one') {
+                nextIdx = this.currentIndex;
+            } else if (this.isShuffle) {
+                nextIdx = Math.floor(Math.random() * this.playlist.length);
+            } else {
+                nextIdx = this.currentIndex + 1;
+                if (nextIdx >= this.playlist.length) {
+                    nextIdx = this.repeatMode === 'off' ? -1 : 0;
+                }
+            }
+
+            if (nextIdx >= 0 && nextIdx < this.playlist.length && nextIdx !== this.currentIndex) {
+                const nextSong = this.playlist[nextIdx];
+                if (nextSong && nextSong.url && this._preloadAudio) {
+                    if (this._preloadAudio.src !== nextSong.url) {
+                        this._preloadAudio.src = nextSong.url;
+                    }
+                }
             }
         }
         
@@ -1520,6 +1557,8 @@ const initialSong = musicList[0] || {};
         newInstance.playOrder = oldInstance.playOrder;
         newInstance._playlistLoadId = oldInstance._playlistLoadId;
         newInstance._mergeSelected = oldInstance._mergeSelected;
+        newInstance._lastLoadedUrl = oldInstance._lastLoadedUrl;
+        newInstance._rafId = 0;
         
         // cleanup old events/timers if necessary
         if(oldInstance.closeTimer) clearTimeout(oldInstance.closeTimer);
