@@ -111,11 +111,13 @@ const playlistData = list ? JSON.stringify(list) : "[]";
                 <p class="text-neu-text-muted text-sm mt-20">Loading lyrics...</p>
             </div>
              <!-- Playlist Container -->
-            <div id="playlist-container" class="absolute inset-0 overflow-y-auto custom-scrollbar p-4 hidden">
-                <!-- Search -->
-                <div class="relative mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-neu-text-muted pointer-events-none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                  <input id="playlist-search" type="text" placeholder="搜索歌名或歌手..." class="input input-sm input-bordered w-full bg-base-100 text-sm rounded-xl pl-9" autocomplete="off" />
+            <div id="playlist-container" class="absolute inset-0 overflow-y-auto custom-scrollbar px-4 pb-4 hidden">
+                <!-- Search (sticky) -->
+                <div class="sticky top-0 z-10 pt-4 pb-3 bg-neu-base">
+                  <div class="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-neu-text-muted pointer-events-none"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input id="playlist-search" type="text" placeholder="搜索歌名或歌手..." class="input input-sm input-bordered w-full bg-base-100 text-sm rounded-xl pl-9" autocomplete="off" />
+                  </div>
                 </div>
                 <ul class="space-y-3" id="playlist-list">
                     {list && list.map((item, index) => (
