@@ -306,11 +306,12 @@ friend:
     - name: Ryuchan Demo
       url: https://demo.131714.xyz/
 about:
-  name: Xiaozhang
+  name: chen
   title: 全栈开发者 & 开源爱好者
-  avatar: https://github.com/kobaridev.png
+  avatar: >-
+    https://img.shiyangya.dpdns.org/file/tx/1777965689638_0fda015c370738031da0f9dc15b4d75b.webp
   bio:
-    - 👋 你好！我是 Xiaozhang，一名热爱技术的全栈开发者。
+    - 👋 你好！我是 chen一名热爱技术的全栈开发者。
     - 💻 专注于前端开发和用户体验设计，喜欢探索新技术，享受用代码解决问题的过程。
     - 🌱 坚信开源精神，积极参与开源项目，相信技术可以让世界变得更美好。
   github: kobaridev
