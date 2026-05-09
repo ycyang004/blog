@@ -132,7 +132,7 @@ user:
         svg: ri:github-line
   footer:
     social:
-      - href: https://github.com/kobaridev
+      - href: https://github.com/ycyang004
         ariaLabel: Github
         title: Github
         svg: ri:github-line
