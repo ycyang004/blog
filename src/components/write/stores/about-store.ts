@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { AboutConfig, TechStackItem } from '@interfaces/site'
+import type { AboutConfig, AboutSiteSection, TechStackItem } from '@interfaces/site'
 
 export interface AboutEditorState {
   data: AboutConfig
@@ -27,6 +27,22 @@ export interface AboutEditorState {
   addTechItem: (item: TechStackItem) => void
   removeTechItem: (index: number) => void
   moveTechItem: (index: number, direction: 'up' | 'down') => void
+
+  // AboutSite actions
+  updateAboutSiteIntro: (intro: string) => void
+  addAboutSiteSection: () => void
+  updateAboutSiteSectionTitle: (index: number, title: string) => void
+  removeAboutSiteSection: (index: number) => void
+  moveAboutSiteSection: (index: number, direction: 'up' | 'down') => void
+  addAboutSiteItem: (sectionIndex: number) => void
+  updateAboutSiteItem: (sectionIndex: number, itemIndex: number, value: string) => void
+  removeAboutSiteItem: (sectionIndex: number, itemIndex: number) => void
+  moveAboutSiteItem: (sectionIndex: number, itemIndex: number, direction: 'up' | 'down') => void
+}
+
+const defaultAboutSite = {
+  intro: '',
+  sections: [] as AboutSiteSection[],
 }
 
 const defaultData: AboutConfig = {
@@ -36,6 +52,14 @@ const defaultData: AboutConfig = {
   bio: [],
   github: '',
   techStack: [],
+  aboutSite: defaultAboutSite,
+}
+
+function ensureAboutSite(data: AboutConfig) {
+  if (!data.aboutSite) {
+    return { ...data, aboutSite: { ...defaultAboutSite } }
+  }
+  return data
 }
 
 export const useAboutEditorStore = create<AboutEditorState>()(
@@ -51,7 +75,7 @@ export const useAboutEditorStore = create<AboutEditorState>()(
       initData: (data) => {
         const { isDirty, initialized } = get()
         if (!initialized && !isDirty) {
-          set({ data, initialized: true })
+          set({ data: ensureAboutSite(data), initialized: true })
         } else if (!initialized && isDirty) {
           set({ initialized: true })
         }
@@ -59,9 +83,7 @@ export const useAboutEditorStore = create<AboutEditorState>()(
 
       mergeRemote: (remote) => {
         const { isDirty } = get()
-        if (!isDirty) { set({ data: remote }); return }
-        // For about page, remote always replaces non-edited fields
-        // If dirty, keep local data
+        if (!isDirty) { set({ data: ensureAboutSite(remote) }); return }
       },
 
       setEditMode: (on) => set({ editMode: on }),
@@ -115,6 +137,77 @@ export const useAboutEditorStore = create<AboutEditorState>()(
         if (target < 0 || target >= techStack.length) return
         ;[techStack[index], techStack[target]] = [techStack[target], techStack[index]]
         set({ data: { ...get().data, techStack }, isDirty: true })
+      },
+
+      // AboutSite actions
+      updateAboutSiteIntro: (intro) => {
+        const data = ensureAboutSite(get().data)
+        data.aboutSite.intro = intro
+        set({ data, isDirty: true })
+      },
+      addAboutSiteSection: () => {
+        const data = ensureAboutSite(get().data)
+        data.aboutSite.sections = [...data.aboutSite.sections, { title: '', items: [] }]
+        set({ data, isDirty: true })
+      },
+      updateAboutSiteSectionTitle: (index, title) => {
+        const data = ensureAboutSite(get().data)
+        const sections = [...data.aboutSite.sections]
+        sections[index] = { ...sections[index], title }
+        data.aboutSite.sections = sections
+        set({ data, isDirty: true })
+      },
+      removeAboutSiteSection: (index) => {
+        const data = ensureAboutSite(get().data)
+        const sections = [...data.aboutSite.sections]
+        sections.splice(index, 1)
+        data.aboutSite.sections = sections
+        set({ data, isDirty: true })
+      },
+      moveAboutSiteSection: (index, direction) => {
+        const data = ensureAboutSite(get().data)
+        const sections = [...data.aboutSite.sections]
+        const target = direction === 'up' ? index - 1 : index + 1
+        if (target < 0 || target >= sections.length) return
+        ;[sections[index], sections[target]] = [sections[target], sections[index]]
+        data.aboutSite.sections = sections
+        set({ data, isDirty: true })
+      },
+      addAboutSiteItem: (sectionIndex) => {
+        const data = ensureAboutSite(get().data)
+        const sections = [...data.aboutSite.sections]
+        sections[sectionIndex] = { ...sections[sectionIndex], items: [...sections[sectionIndex].items, ''] }
+        data.aboutSite.sections = sections
+        set({ data, isDirty: true })
+      },
+      updateAboutSiteItem: (sectionIndex, itemIndex, value) => {
+        const data = ensureAboutSite(get().data)
+        const sections = [...data.aboutSite.sections]
+        const items = [...sections[sectionIndex].items]
+        items[itemIndex] = value
+        sections[sectionIndex] = { ...sections[sectionIndex], items }
+        data.aboutSite.sections = sections
+        set({ data, isDirty: true })
+      },
+      removeAboutSiteItem: (sectionIndex, itemIndex) => {
+        const data = ensureAboutSite(get().data)
+        const sections = [...data.aboutSite.sections]
+        const items = [...sections[sectionIndex].items]
+        items.splice(itemIndex, 1)
+        sections[sectionIndex] = { ...sections[sectionIndex], items }
+        data.aboutSite.sections = sections
+        set({ data, isDirty: true })
+      },
+      moveAboutSiteItem: (sectionIndex, itemIndex, direction) => {
+        const data = ensureAboutSite(get().data)
+        const sections = [...data.aboutSite.sections]
+        const items = [...sections[sectionIndex].items]
+        const target = direction === 'up' ? itemIndex - 1 : itemIndex + 1
+        if (target < 0 || target >= items.length) return
+        ;[items[itemIndex], items[target]] = [items[target], items[itemIndex]]
+        sections[sectionIndex] = { ...sections[sectionIndex], items }
+        data.aboutSite.sections = sections
+        set({ data, isDirty: true })
       },
     }),
     {

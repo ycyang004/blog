@@ -127,7 +127,11 @@ export const FRIEND_ITEMS = FRIEND_CONFIG.items ?? [];
 export const SHOWCASE_SITES = FRIEND_CONFIG.sites ?? [];
 
 // 关于页面配置
-export const ABOUT_CONFIG = config.about ?? { name: '', title: '', avatar: '', bio: [], github: '', techStack: [] };
+export const ABOUT_CONFIG = {
+  name: '', title: '', avatar: '', bio: [], github: '', techStack: [],
+  aboutSite: { intro: '', sections: [] },
+  ...config.about
+};
 
 // Umami 配置接口
 export interface UmamiConfig {

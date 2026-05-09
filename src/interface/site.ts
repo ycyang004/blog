@@ -234,6 +234,16 @@ export interface TechStackItem {
   color?: string;
 }
 
+export interface AboutSiteSection {
+  title: string;
+  items: string[];
+}
+
+export interface AboutSiteConfig {
+  intro: string;
+  sections: AboutSiteSection[];
+}
+
 export interface AboutConfig {
   name: string;
   title: string;
@@ -241,6 +251,7 @@ export interface AboutConfig {
   bio: string[];
   github: string;
   techStack: TechStackItem[];
+  aboutSite?: AboutSiteConfig;
 }
 
 import type { UmamiConfig } from "../config";
