@@ -314,7 +314,8 @@ project:
       url: https://demo.131714.xyz/project
       badge: ''
     - name: OpenList
-      avatar: ''
+      avatar: >-
+        https://img.shiyangya.dpdns.org/file/ys/1777966129515_0c67c163e5889ba4fc7f37f5d7125649.webp
       description: 内网穿透
       url: https://openlist.shiyangya.dpdns.org/
       badge: ''
