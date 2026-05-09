@@ -294,7 +294,12 @@ navigation:
           badgeIcon: lucide:film
           badgeColor: rose
 project:
-  items: []
+  items:
+    - name: Blog
+      avatar: ''
+      description: ''
+      url: https://github.com/ycyang004/blog
+      badge: ''
 friend:
   items:
     - name: KoBariDev
