@@ -233,5 +233,64 @@ const bannerSubtitle = pageConfig?.subtitle || "";
         }
       }
     </style>
+
+    <!-- 点击特效：浮动彩色文字 -->
+    <script is:inline>
+      (function () {
+        const texts = [
+          "❤富强❤", "❤民主❤", "❤文明❤", "❤和谐❤",
+          "❤自由❤", "❤平等❤", "❤公正❤", "❤法治❤",
+          "❤爱国❤", "❤敬业❤", "❤诚信❤", "❤友善❤"
+        ];
+        let textIdx = 0;
+
+        function randomColor() {
+          const r = Math.floor(Math.random() * 256);
+          const g = Math.floor(Math.random() * 256);
+          const b = Math.floor(Math.random() * 256);
+          return `rgb(${r},${g},${b})`;
+        }
+
+        window.addEventListener("click", function (e) {
+          // 跳过交互元素的点击，避免干扰正常操作
+          const tag = e.target.tagName.toLowerCase();
+          if (tag === "a" || tag === "button" || tag === "input" || tag === "textarea" || tag === "select") return;
+          if (e.target.closest("[data-no-click-effect]")) return;
+
+          const el = document.createElement("span");
+          el.textContent = texts[textIdx];
+          textIdx = (textIdx + 1) % texts.length;
+
+          let x = e.clientX - 6 - 30;
+          let y = e.clientY - 13;
+          const color = randomColor();
+          let opacity = 1;
+          let scale = 0.8;
+
+          el.style.cssText = `
+            position:fixed;left:${x}px;top:${y}px;font-size:16px;
+            color:${color};opacity:${opacity};transform:scale(${scale});
+            pointer-events:none;user-select:none;z-index:9999;cursor:default;
+          `;
+          document.body.appendChild(el);
+
+          const timer = setInterval(function () {
+            if (opacity <= 0) {
+              document.body.removeChild(el);
+              clearInterval(timer);
+            } else {
+              y--;
+              opacity -= 0.016;
+              scale += 0.002;
+              el.style.cssText = `
+                position:fixed;left:${x}px;top:${y}px;font-size:16px;
+                color:${color};opacity:${opacity};transform:scale(${scale});
+                pointer-events:none;user-select:none;z-index:9999;cursor:default;
+              `;
+            }
+          }, 15);
+        });
+      })();
+    </script>
   </body>
 </html>
