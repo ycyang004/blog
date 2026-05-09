@@ -79,6 +79,8 @@ const initialSong = musicList[0] || {};
             this.playlistSearch = null;
             this.playOrder = [];
             this._playlistLoadId = 0;
+            this._pinyin = null;
+            this._pinyinLoading = false;
 
             // Initial binding
             this.handlePageLoad();
@@ -368,19 +370,96 @@ const initialSong = musicList[0] || {};
         }
 
         filterPlaylist(query) {
-            const q = query.toLowerCase().trim();
+            const q = query.trim();
             const items = document.querySelectorAll('.playlist-item');
-            let hasVisible = false;
+            if (!q) {
+                items.forEach(item => item.classList.remove('hidden'));
+                return;
+            }
             items.forEach(item => {
-                const title = item.querySelector('h3')?.textContent?.toLowerCase() || '';
-                const artist = item.querySelector('p')?.textContent?.toLowerCase() || '';
-                if (!q || title.includes(q) || artist.includes(q)) {
+                const title = item.querySelector('h3')?.textContent?.trim() || '';
+                const artist = item.querySelector('p')?.textContent?.trim() || '';
+                if (this.fuzzyMatch(q, title, artist)) {
                     item.classList.remove('hidden');
-                    hasVisible = true;
                 } else {
                     item.classList.add('hidden');
                 }
             });
+        }
+
+        fuzzyMatch(query, title, artist) {
+            const q = query.toLowerCase();
+            const t = title.toLowerCase();
+            const a = artist.toLowerCase();
+
+            // Normalize: strip spaces, punctuation, special chars
+            const normalize = (s) => s.replace(/[\s\-_.,()（）\[\]【】\/\\&·•@#$%^&*+=~`'"!?:;]+/g, '').toLowerCase();
+            const qn = normalize(q);
+            const tn = normalize(t);
+            const an = normalize(a);
+
+            // 1. Exact substring on raw or normalized text
+            if (t.includes(q) || a.includes(q) || tn.includes(qn) || an.includes(qn)) return true;
+
+            // 2. Character-in-order match (handles abbreviations like "ainy" → "A.I.N.Y.")
+            const charMatch = (qstr, target) => {
+                let qi = 0;
+                for (let ti = 0; ti < target.length && qi < qstr.length; ti++) {
+                    if (target[ti] === qstr[qi]) qi++;
+                }
+                return qi === qstr.length;
+            };
+            if (charMatch(qn, tn) || charMatch(qn, an)) return true;
+
+            // 3. Pinyin match — check synchronously if library already loaded
+            if (this._pinyin) {
+                return this._pinyinMatch(qn, title, artist);
+            }
+
+            // 4. Pinyin not loaded yet — trigger async load and re-check on next input
+            this._loadPinyin();
+            return false;
+        }
+
+        _pinyinMatch(query, title, artist) {
+            if (!this._pinyin) return false;
+            const { pinyin } = this._pinyin;
+            // Full pinyin
+            const tp = pinyin(title, { toneType: 'none', type: 'array' }).join('').toLowerCase();
+            const ap = pinyin(artist, { toneType: 'none', type: 'array' }).join('').toLowerCase();
+            // First letters
+            const tpi = pinyin(title, { pattern: 'first', toneType: 'none', type: 'array' }).join('').toLowerCase();
+            const api = pinyin(artist, { pattern: 'first', toneType: 'none', type: 'array' }).join('').toLowerCase();
+
+            const targets = [tp, ap, tpi, api, tp + ap, tpi + api];
+            return targets.some(target => {
+                if (target.includes(query)) return true;
+                // Character-in-order on pinyin
+                let qi = 0;
+                for (let ti = 0; ti < target.length && qi < query.length; ti++) {
+                    if (target[ti] === query[qi]) qi++;
+                }
+                return qi === query.length;
+            });
+        }
+
+        _loadPinyin() {
+            if (this._pinyinLoading || this._pinyin) return;
+            this._pinyinLoading = true;
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/pinyin-pro@3.25.0/dist/index.js';
+            script.onload = () => {
+                this._pinyin = window.pinyinPro;
+                this._pinyinLoading = false;
+                // Re-trigger search with current input value to apply pinyin matching
+                if (this.playlistSearch && this.playlistSearch.value.trim()) {
+                    this.filterPlaylist(this.playlistSearch.value);
+                }
+            };
+            script.onerror = () => {
+                this._pinyinLoading = false;
+            };
+            document.head.appendChild(script);
         }
 
         // ── Play Order ──
