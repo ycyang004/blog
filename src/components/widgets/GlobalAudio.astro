@@ -77,6 +77,7 @@ const initialSong = musicList[0] || {};
             this.isDraggingProgress = false;
             this.isDraggingVolume = false;
             this.playlistSearch = null;
+            this.playOrder = [];
 
             // Initial binding
             this.handlePageLoad();
@@ -138,6 +139,7 @@ const initialSong = musicList[0] || {};
                 
                 this.updatePlaylistDurations();
                 this.bindPlaylistEvents();
+                this.updateOrderBadges();
             }
 
             // Sync playback status with audio element
@@ -276,6 +278,9 @@ const initialSong = musicList[0] || {};
                 this.playlistSearch.dataset.bound = "true";
             }
 
+            // Play Order Buttons
+            this.bindOrderButtons();
+
             // Progress Bar Dragging
             if(this.progressContainer && !this.progressContainer.dataset.bound) {
                 const startProgressDrag = (e) => {
@@ -374,6 +379,73 @@ const initialSong = musicList[0] || {};
             });
         }
 
+        // ── Play Order ──
+        bindOrderButtons() {
+            const buttons = document.querySelectorAll('.playlist-order-btn');
+            buttons.forEach(btn => {
+                if (btn.dataset.boundOrder) return;
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // don't trigger song click
+                    const index = parseInt(btn.dataset.index);
+                    if (!isNaN(index)) this.toggleOrder(index);
+                });
+                btn.dataset.boundOrder = "true";
+            });
+        }
+
+        toggleOrder(index) {
+            const pos = this.playOrder.indexOf(index);
+            if (pos >= 0) {
+                // Already in order → remove and renumber
+                this.playOrder.splice(pos, 1);
+            } else {
+                // Add to end of order
+                this.playOrder.push(index);
+            }
+            this.updateOrderBadges();
+        }
+
+        updateOrderBadges() {
+            const buttons = document.querySelectorAll('.playlist-order-btn');
+            buttons.forEach(btn => {
+                const index = parseInt(btn.dataset.index);
+                const orderPos = this.playOrder.indexOf(index);
+                const svg = btn.querySelector('svg');
+
+                if (orderPos >= 0) {
+                    // In play order — show position number
+                    btn.classList.remove('border-dashed', 'border-neu-border/50', 'text-neu-text-muted', 'hover:border-primary', 'hover:text-primary');
+                    btn.classList.add('border-solid', 'border-primary', 'bg-primary/10', 'text-primary');
+                    if (svg) svg.classList.add('hidden');
+                    btn.textContent = orderPos + 1;
+                    // Re-append hidden svg for toggling back
+                    if (svg) {
+                        btn.appendChild(svg);
+                        svg.classList.add('hidden');
+                    }
+                } else {
+                    // Not in order — show "+" icon
+                    btn.classList.add('border-dashed', 'border-neu-border/50', 'text-neu-text-muted', 'hover:border-primary', 'hover:text-primary');
+                    btn.classList.remove('border-solid', 'border-primary', 'bg-primary/10', 'text-primary');
+                    // Remove number text, keep svg
+                    btn.childNodes.forEach(c => { if (c.nodeType === 3) c.remove(); });
+                    if (svg) svg.classList.remove('hidden');
+                }
+            });
+        }
+
+        clearPlayOrder() {
+            this.playOrder = [];
+            this.updateOrderBadges();
+        }
+
+        getNextFromOrder() {
+            if (this.playOrder.length === 0) return -1;
+            const next = this.playOrder.shift();
+            this.updateOrderBadges();
+            return next;
+        }
+
         async updatePlaylistDurations() {
              const items = document.querySelectorAll('.playlist-item .playlist-duration');
              this.playlist.forEach((song, index) => {
@@ -389,7 +461,14 @@ const initialSong = musicList[0] || {};
 
         loadSong(index, autoPlay = true) {
             if(index < 0 || index >= this.playlist.length) return;
-            
+
+            // If this song is in the play order, remove it so it won't replay
+            const orderIdx = this.playOrder.indexOf(index);
+            if (orderIdx >= 0) {
+                this.playOrder.splice(orderIdx, 1);
+                this.updateOrderBadges();
+            }
+
             this.currentIndex = index;
             const song = this.playlist[index];
             
@@ -446,6 +525,15 @@ const initialSong = musicList[0] || {};
         }
         
         nextSong(isAuto = false) {
+            // If play order is active, use it first
+            if (this.playOrder.length > 0) {
+                const nextFromOrder = this.getNextFromOrder();
+                if (nextFromOrder >= 0) {
+                    this.loadSong(nextFromOrder, true);
+                    return;
+                }
+            }
+
              let newIndex;
             if (this.repeatMode === 'one' && isAuto) {
                  newIndex = this.currentIndex;
@@ -463,7 +551,7 @@ const initialSong = musicList[0] || {};
                          // Stop playback if mode is off and end of list reached automatically
                          this.isPlaying = false;
                          this.updateUI();
-                         return; 
+                         return;
                     }
                     newIndex = 0;
                 }
@@ -976,6 +1064,7 @@ const initialSong = musicList[0] || {};
         newInstance.lrcUrl = oldInstance.lrcUrl;
         newInstance.audio = oldInstance.audio;
         newInstance.isMiniOpen = oldInstance.isMiniOpen;
+        newInstance.playOrder = oldInstance.playOrder;
         
         // cleanup old events/timers if necessary
         if(oldInstance.closeTimer) clearTimeout(oldInstance.closeTimer);

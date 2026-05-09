@@ -139,6 +139,10 @@ const playlistData = list ? JSON.stringify(list) : "[]";
                         </div>
                         <!-- Duration -->
                         <div class="text-xs font-mono text-neu-text-muted font-bold playlist-duration">{item.duration || "--:--"}</div>
+                        <!-- Order Badge -->
+                        <button class="playlist-order-btn w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all shrink-0 border border-dashed border-neu-border/50 text-neu-text-muted hover:border-primary hover:text-primary" data-index={index} title="点击设置播放顺序">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
                      </li>
                     ))}
                 </ul>
