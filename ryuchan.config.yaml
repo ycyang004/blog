@@ -146,10 +146,10 @@ user:
       #   title: X(twitter)
       #   svg: ri:twitter-line
         
-      - href: https://t.me/xzz_ya
-        ariaLabel: Telegram
-        title: Telegram
-        svg: ri:telegram-line
+      #- href: https://t.me/xzz_ya
+      # ariaLabel: Telegram
+      #  title: Telegram
+      # svg: ri:telegram-line
 navigation:
   categories:
     - title: 开发工具
