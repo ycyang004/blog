@@ -58,6 +58,8 @@ site:
         id: '17955614084'
       - name: like
         id: '17956673469'
+      - name: All
+        id: '17957806905'
   menu:
     - id: home
       text: 首页
