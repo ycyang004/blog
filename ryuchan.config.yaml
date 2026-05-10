@@ -119,7 +119,7 @@ github:
   owner: kobaridev
   repo: RyuChan
   branch: main
-  appId: 在部署端配置环境变量
+  appId: 于部署端配置环境变量
   encryptKey: wudishiduomejimo
 umami:
   enable: false
