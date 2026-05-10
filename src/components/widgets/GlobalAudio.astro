@@ -521,16 +521,16 @@ const initialSong = musicList[0] || {};
         toggleMergeSelect(playlistId, btn) {
             if (this._mergeSelected.has(playlistId)) {
                 this._mergeSelected.delete(playlistId);
-                btn.classList.remove('bg-primary', 'text-white', 'border-primary');
-                btn.classList.add('border-dashed', 'border-neu-border/50', 'text-neu-text-muted');
+                btn.classList.remove('bg-primary', 'text-white', 'border-primary', 'opacity-100');
+                btn.classList.add('border-dashed', 'border-neu-border/50', 'text-neu-text-muted', 'opacity-0', 'group-hover:opacity-100');
                 btn.querySelector('svg')?.classList.remove('hidden');
                 // Remove check icon if any
                 const checkSvg = btn.querySelector('.merge-check-icon');
                 if (checkSvg) checkSvg.remove();
             } else {
                 this._mergeSelected.add(playlistId);
-                btn.classList.add('bg-primary', 'text-white', 'border-primary');
-                btn.classList.remove('border-dashed', 'border-neu-border/50', 'text-neu-text-muted');
+                btn.classList.add('bg-primary', 'text-white', 'border-primary', 'opacity-100');
+                btn.classList.remove('border-dashed', 'border-neu-border/50', 'text-neu-text-muted', 'opacity-0', 'group-hover:opacity-100');
                 // Replace "+" icon with check
                 const svg = btn.querySelector('svg');
                 if (svg) {
@@ -637,8 +637,8 @@ const initialSong = musicList[0] || {};
 
                 // Reset merge check buttons
                 document.querySelectorAll('.meting-merge-check').forEach(btn => {
-                    btn.classList.remove('bg-primary', 'text-white', 'border-primary');
-                    btn.classList.add('border-dashed', 'border-neu-border/50', 'text-neu-text-muted');
+                    btn.classList.remove('bg-primary', 'text-white', 'border-primary', 'opacity-100');
+                    btn.classList.add('border-dashed', 'border-neu-border/50', 'text-neu-text-muted', 'opacity-0', 'group-hover:opacity-100');
                     const svg = btn.querySelector('svg:not(.merge-check-icon)');
                     if (svg) svg.classList.remove('hidden');
                     btn.querySelectorAll('.merge-check-icon').forEach(c => c.remove());
