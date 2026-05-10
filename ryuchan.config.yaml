@@ -60,6 +60,8 @@ site:
         id: '17956673469'
       - name: All
         id: '17957806905'
+      - name: Lone
+        id: '17958305381'
   menu:
     - id: home
       text: 首页
