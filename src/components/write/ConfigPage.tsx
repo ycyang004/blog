@@ -627,9 +627,13 @@ export function ConfigPage() {
                                             </div>
                                             <div className="grid grid-cols-1 gap-4">
                                                 <div className="form-control w-full">
-                                                    <label className="label"><span className="label-text text-xs text-base-content/60">Bilibili UID</span></label>
-                                                    <input type="text" className="input input-bordered w-full bg-base-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                                                        placeholder="例如：1536411565"
+                                                    <label className="label"><span className="label-text text-xs text-base-content/60">
+                                                        Bilibili UID
+                                                        {!isAuth && <span className="ml-1 text-warning">🔒</span>}
+                                                    </span></label>
+                                                    <input type={isAuth ? "text" : "password"} className="input input-bordered w-full bg-base-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                                        placeholder={isAuth ? "例如：1536411565" : "需要验证后查看"}
+                                                        disabled={!isAuth}
                                                         value={parsedConfig?.anime?.bilibili?.uid || parsedConfig?.site?.bilibili?.uid || ''}
                                                         onChange={e => updateConfigValue('anime.bilibili.uid', e.target.value)} />
                                                 </div>
@@ -670,9 +674,13 @@ export function ConfigPage() {
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                                 <div className="form-control w-full">
-                                                    <label className="label"><span className="label-text text-xs text-base-content/60">网易云歌单ID</span></label>
-                                                    <input type="text" className="input input-bordered w-full bg-base-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                                                        placeholder="例如: 8900628861"
+                                                    <label className="label"><span className="label-text text-xs text-base-content/60">
+                                                        网易云歌单ID
+                                                        {!isAuth && <span className="ml-1 text-warning">🔒</span>}
+                                                    </span></label>
+                                                    <input type={isAuth ? "text" : "password"} className="input input-bordered w-full bg-base-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                                        placeholder={isAuth ? "例如: 8900628861" : "需要验证后查看"}
+                                                        disabled={!isAuth}
                                                         value={parsedConfig?.site?.meting?.id || ''}
                                                         onChange={e => updateConfigValue('site.meting.id', e.target.value)} />
                                                 </div>
@@ -698,6 +706,7 @@ export function ConfigPage() {
                                                 </div>
                                                 <button
                                                     className="btn btn-xs btn-outline btn-primary"
+                                                    disabled={!isAuth}
                                                     onClick={() => {
                                                         const playlists = [...(parsedConfig?.site?.meting?.playlists || [])]
                                                         playlists.push({ name: '', id: '' })
@@ -718,6 +727,7 @@ export function ConfigPage() {
                                                                 type="text"
                                                                 className="input input-sm input-bordered w-full bg-base-100 focus:border-primary"
                                                                 placeholder="歌单名称"
+                                                                disabled={!isAuth}
                                                                 value={pl.name || ''}
                                                                 onChange={e => {
                                                                     const playlists = [...(parsedConfig?.site?.meting?.playlists || [])]
@@ -726,9 +736,10 @@ export function ConfigPage() {
                                                                 }}
                                                             />
                                                             <input
-                                                                type="text"
+                                                                type={isAuth ? "text" : "password"}
                                                                 className="input input-sm input-bordered w-full bg-base-100 focus:border-primary"
-                                                                placeholder="网易云歌单ID"
+                                                                placeholder={isAuth ? "网易云歌单ID" : "需要验证"}
+                                                                disabled={!isAuth}
                                                                 value={pl.id || ''}
                                                                 onChange={e => {
                                                                     const playlists = [...(parsedConfig?.site?.meting?.playlists || [])]
@@ -737,6 +748,7 @@ export function ConfigPage() {
                                                                 }}
                                                             />
                                                         </div>
+                                                        {isAuth && (
                                                         <button
                                                             className="btn btn-xs btn-ghost btn-square text-error opacity-0 group-hover:opacity-100 transition-opacity"
                                                             onClick={() => {
@@ -747,6 +759,7 @@ export function ConfigPage() {
                                                         >
                                                             ✕
                                                         </button>
+                                                        )}
                                                     </div>
                                                 ))}
                                                 {(!parsedConfig?.site?.meting?.playlists || parsedConfig.site.meting.playlists.length === 0) && (
