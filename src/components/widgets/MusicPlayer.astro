@@ -10,6 +10,7 @@ interface MusicItem {
 interface PlaylistItem {
     name: string;
     id: string;
+    songCount?: number | null;
 }
 
 interface Props {
@@ -28,7 +29,7 @@ const currentTitle = title || (list && list[0] ? list[0].title : "");
 const currentArtist = artist || (list && list[0] ? list[0].artist : "");
 const lrcUrl = currentSrc ? currentSrc.replace(/\.[^/.]+$/, ".lrc") : "";
 const playlistData = list ? JSON.stringify(list) : "[]";
-const metingPlaylists = playlists && playlists.length > 0 ? playlists : [{ name: "默认歌单", id: "" }];
+const metingPlaylists = playlists && playlists.length > 0 ? playlists : [{ name: "默认歌单", id: "", songCount: null }];
 const metingPlaylistsData = JSON.stringify(metingPlaylists);
 ---
 
@@ -79,37 +80,40 @@ const metingPlaylistsData = JSON.stringify(metingPlaylists);
 
           <!-- Playlist Selector -->
           <div class="w-full max-w-[320px] mt-4 pt-3 border-t border-gray-200/50 dark:border-gray-700/50" id="playlist-selector-section">
-            <p class="text-xs text-neu-text-muted font-medium mb-2 text-left flex items-center justify-between">
+            <p class="text-xs text-neu-text-muted font-medium mb-2 text-left flex items-center justify-between px-1">
               <span>歌单列表</span>
               <button id="btn-merge-playlists" class="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold opacity-0 pointer-events-none transition-all duration-200 hidden" title="合并选中的歌单">
                 合并所选
               </button>
             </p>
-            <ul class="space-y-1.5" id="meting-playlist-selector">
-              {metingPlaylists.map((pl, idx) => (
-                <li class="flex items-center gap-1.5 group">
-                  <button
-                    class="meting-pl-item flex-1 text-left px-3 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2.5 border border-transparent text-neu-text-muted hover:bg-black/5 dark:hover:bg-white/5 hover:border-neu-border/50"
-                    data-playlist-id={pl.id}
-                    data-playlist-name={pl.name}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 opacity-60"><circle cx="12" cy="12" r="10"/><path d="M10 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1-.5-.5z"/><path d="M8 8v8"/></svg>
-                    <span class="truncate">{pl.name}</span>
-                    {idx === 0 && (
-                      <span class="ml-auto text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full shrink-0 meting-pl-active-dot">当前</span>
-                    )}
-                  </button>
-                  <button
-                    class="meting-merge-check w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all border border-dashed border-neu-border/50 text-neu-text-muted hover:border-primary hover:text-primary opacity-0 group-hover:opacity-100 focus:opacity-100"
-                    data-playlist-id={pl.id}
-                    data-playlist-name={pl.name}
-                    title="选择合并此歌单"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div class="bg-neu-base shadow-neu-in rounded-2xl border border-neu-border overflow-hidden">
+              <ul class="max-h-[144px] overflow-y-auto custom-scrollbar divide-y divide-neu-border/30" id="meting-playlist-selector">
+                {metingPlaylists.map((pl, idx) => (
+                  <li class="flex items-center gap-1.5 group px-2 py-1.5 hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors">
+                    <button
+                      class="meting-pl-item flex-1 text-left px-2 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2.5 border border-transparent text-neu-text-muted hover:bg-black/5 dark:hover:bg-white/5 hover:border-neu-border/50"
+                      data-playlist-id={pl.id}
+                      data-playlist-name={pl.name}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 opacity-60"><circle cx="12" cy="12" r="10"/><path d="M10 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1-.5-.5z"/><path d="M8 8v8"/></svg>
+                      <span class="truncate">{pl.name}</span>
+                      <span class="ml-auto text-[10px] text-neu-text-muted/60 font-mono meting-pl-count shrink-0">{pl.songCount != null ? pl.songCount + '首' : '...'}</span>
+                      {idx === 0 && (
+                        <span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full shrink-0 meting-pl-active-dot">当前</span>
+                      )}
+                    </button>
+                    <button
+                      class="meting-merge-check w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-all border border-dashed border-neu-border/50 text-neu-text-muted hover:border-primary hover:text-primary opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      data-playlist-id={pl.id}
+                      data-playlist-name={pl.name}
+                      title="选择合并此歌单"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </div>

@@ -4,7 +4,13 @@ import MusicPlayer from "@/components/widgets/MusicPlayer.astro";
 import { musicList } from "@/data/music";
 import { METING_CONFIG } from "@/config";
 
-const metingPlaylists = METING_CONFIG.playlists || [{ name: "默认歌单", id: METING_CONFIG.id || "17955614084" }];
+const metingPlaylistsRaw = METING_CONFIG.playlists || [{ name: "默认歌单", id: METING_CONFIG.id || "17955614084" }];
+// 标记初始歌单的歌数已知
+const initialPlaylistId = METING_CONFIG.id || "17955614084";
+const metingPlaylists = metingPlaylistsRaw.map((pl: { name: string; id: string }) => ({
+  ...pl,
+  songCount: pl.id === initialPlaylistId ? musicList.length : null,
+}));
 ---
 
 <BaseLayout title="音乐" showSidebar={true} showTOC={false} isIndexed={false}>

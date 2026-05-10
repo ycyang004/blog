@@ -153,6 +153,8 @@ const initialSong = musicList[0] || {};
             // Bind playlist selector (Meting playlists)
             this.bindPlaylistSelector();
             this.bindMergeButtons();
+            // Fetch song counts for playlists that don't have one yet
+            this.fetchAllPlaylistSizes();
 
             // Sync playback status with audio element
             if (this.audio && !this.audio.paused) {
@@ -469,6 +471,33 @@ const initialSong = musicList[0] || {};
             document.head.appendChild(script);
         }
 
+        // ── Playlist song counts ──
+        fetchAllPlaylistSizes() {
+            const items = document.querySelectorAll('.meting-pl-item');
+            items.forEach(btn => {
+                const id = btn.dataset.playlistId;
+                const countEl = btn.querySelector('.meting-pl-count');
+                if (!id || !countEl || countEl.textContent !== '...') return;
+                this.fetchPlaylistSize(id).then(count => {
+                    this.updatePlaylistCountUI(id, count);
+                }).catch(() => {});
+            });
+        }
+
+        async fetchPlaylistSize(playlistId) {
+            const res = await fetch(`https://163.hyc.moe?server=netease&type=playlist&id=${playlistId}`);
+            if (!res.ok) throw new Error('Failed');
+            const data = await res.json();
+            return Array.isArray(data) ? data.length : 0;
+        }
+
+        updatePlaylistCountUI(playlistId, count) {
+            const btn = document.querySelector(`.meting-pl-item[data-playlist-id="${playlistId}"]`);
+            if (!btn) return;
+            const countEl = btn.querySelector('.meting-pl-count');
+            if (countEl) countEl.textContent = count + '首';
+        }
+
         // ── Merge Playlists ──
         bindMergeButtons() {
             const checks = document.querySelectorAll('.meting-merge-check');
@@ -781,11 +810,12 @@ const initialSong = musicList[0] || {};
                 // Update playlist list UI
                 this.renderPlaylistList(newPlaylist);
 
-                // Update active dot text
+                // Update active dot text and song count
                 if (activeBtn) {
                     const dotEl = activeBtn.querySelector('.meting-pl-active-dot');
                     if (dotEl) dotEl.textContent = '当前';
                 }
+                this.updatePlaylistCountUI(playlistId, newPlaylist.length);
 
                 // Load first song
                 if (this.playlist.length > 0) {
