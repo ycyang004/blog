@@ -308,7 +308,7 @@ project:
     - name: MyMapBed
       avatar: >-
         https://img.shiyangya.dpdns.org/file/BengTie/1777968356623_wallhaven-yx38rd.jpg
-      description: paqu的图片，上传密码123456
+      description: ''
       url: https://img.shiyangya.dpdns.org/
       badge: ''
     - name: MyFriendBlog
