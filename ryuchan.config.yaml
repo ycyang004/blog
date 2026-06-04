@@ -54,8 +54,8 @@ site:
     br: '400'
     trans: true
     playlists:
-      - name: 默认歌单
-        id: '17955614084'
+      - name: Popular Songs
+        id: '18014358509'
       - name: like
         id: '17956673469'
       - name: All
