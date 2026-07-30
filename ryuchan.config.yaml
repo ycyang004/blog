@@ -322,6 +322,11 @@ project:
       description: 内网穿透
       url: https://openlist.shiyangya.dpdns.org/
       badge: ''
+    - name: 域名邮箱
+      avatar: ''
+      description: 邮箱
+      url: https://email.yycc.de5.net
+      badge: ''
 friend:
   items:
     - name: KoBariDev
