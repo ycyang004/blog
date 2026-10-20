@@ -41,8 +41,8 @@ const COMMENT_PROVIDERS = [
     { value: 'supabase', label: 'Supabase' }
 ]
 
-export function ConfigPage() {
-    const [configContent, setConfigContent] = useState('')
+export function ConfigPage({ initialConfig = '' }: { initialConfig?: string }) {
+    const [configContent, setConfigContent] = useState(initialConfig)
     const [lastFetchedContent, setLastFetchedContent] = useState<string | null>(null)
     const [isDirty, setIsDirty] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -110,7 +110,9 @@ export function ConfigPage() {
                 setLastFetchedContent(content)
             }
         } catch (error: any) {
-            toast.error('加载配置失败: ' + error.message)
+            if (!initialConfig) {
+                toast.error('加载配置失败: ' + error.message)
+            }
         } finally {
             setLoading(false)
         }

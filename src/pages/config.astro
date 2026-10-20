@@ -1,8 +1,15 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { ConfigPage } from '@/components/write/ConfigPage';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const initialConfig = fs.readFileSync(
+  path.resolve(process.cwd(), 'ryuchan.config.yaml'),
+  'utf8',
+);
 ---
 
 <BaseLayout title="站点配置" showSidebar={false} showBanner={false} isIndexed={false} noindex={true}>
-    <ConfigPage client:only="react" />
+    <ConfigPage initialConfig={initialConfig} client:only="react" />
 </BaseLayout>

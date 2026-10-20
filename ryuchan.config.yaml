@@ -97,8 +97,8 @@ site:
       svg: material-symbols:info-outline-rounded
       target: _self
 github:
-  owner: kobaridev
-  repo: RyuChan
+  owner: ycyang004
+  repo: blog
   branch: main
   appId: 于部署端配置环境变量
   encryptKey: wudishiduomejimo
