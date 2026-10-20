@@ -283,6 +283,11 @@ project:
       description: ''
       url: https://img.lamby.de5.net/
       badge: ''
+    - name: CreatePicture
+      avatar: ''
+      description: AI 生图工作台
+      url: https://draw.lamby.de5.net/
+      badge: ''
     - name: MyFriendBlog
       avatar: https://demo.131714.xyz/profile.png
       description: ''
