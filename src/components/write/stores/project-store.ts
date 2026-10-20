@@ -46,11 +46,13 @@ export const useProjectEditorStore = create<ProjectEditorState>()(
       editingItemKey: null,
 
       initData: (items) => {
-        const { isDirty, initialized } = get()
-        if (!initialized && !isDirty) {
-          set({ items, initialized: true })
-        } else if (!initialized && isDirty) {
-          set({ initialized: true })
+        const { isDirty, initialized, items: currentItems } = get()
+        if (!initialized) {
+          if (isDirty && currentItems.length > 0) {
+            set({ initialized: true })
+          } else {
+            set({ items, initialized: true, isDirty: false })
+          }
         }
       },
 
