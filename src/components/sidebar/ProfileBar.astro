@@ -589,6 +589,7 @@ function initProfileSettings() {
   const card = document.querySelector('.profile-card');
   const dialog = document.getElementById('profile-settings-dialog');
   const openButton = document.getElementById('profile-settings-open');
+  const mobileOpenButton = document.getElementById('mobile-profile-settings-open');
   const closeButton = document.getElementById('profile-settings-close');
   const cancelButton = document.getElementById('profile-settings-cancel');
   const resetButton = document.getElementById('profile-settings-reset');
@@ -600,6 +601,7 @@ function initProfileSettings() {
   }
 
   card.dataset.profileSettingsReady = 'true';
+  mobileOpenButton?.closest('li')?.classList.remove('hidden');
   let draft = readProfileSettings();
   applyProfileSettings(draft);
 
@@ -618,15 +620,21 @@ function initProfileSettings() {
     }
   };
 
-  openButton.addEventListener('click', () => {
+  const openSettingsDialog = () => {
     draft = readProfileSettings();
     renderDraft();
+    if (dialog.parentElement !== document.body) {
+      document.body.appendChild(dialog);
+    }
     if (typeof dialog.showModal === 'function') {
       dialog.showModal();
     } else {
       dialog.setAttribute('open', '');
     }
-  });
+  };
+
+  openButton.addEventListener('click', openSettingsDialog);
+  mobileOpenButton?.addEventListener('click', openSettingsDialog);
 
   document.querySelectorAll('[data-effect-group]').forEach((button) => {
     button.addEventListener('click', () => {
