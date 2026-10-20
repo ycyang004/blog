@@ -42,11 +42,12 @@ const getCategoryDisplayName = (category: string): string => {
 <!-- 第一个盒子：用户信息 -->  
 <div class="card-base p-3 mb-4">  
   <!-- 头像区域 -->  
-  <a   
-    aria-label="Go to About Page"   
-    href="/about/"   
-    class="group block relative mx-auto mt-1 lg:mx-0 lg:mt-0 mb-3 max-w-[12rem] lg:max-w-none overflow-hidden rounded-2xl active:scale-95"  
-  >  
+  <div class="avatar-light-frame mx-auto mt-1 mb-3 max-w-[12rem] lg:mx-0 lg:mt-0 lg:max-w-none">
+  <a
+    aria-label="Go to About Page"
+    href="/about/"
+    class="group block relative overflow-hidden rounded-2xl active:scale-95"
+  >
     <!-- 悬停遮罩层 -->  
     <div class="absolute transition pointer-events-none group-hover:bg-black/30 group-active:bg-black/50 w-full h-full z-50 flex items-center justify-center">  
       <Icon   
@@ -78,7 +79,8 @@ const getCategoryDisplayName = (category: string): string => {
         onload="this.style.opacity='1'; this.parentElement.querySelector('.loading-bar').style.opacity='0';"  
       />  
     </div>  
-  </a>  
+  </a>
+  </div>
     
   <!-- 用户信息区域 -->  
   <div class="px-2">  
@@ -417,4 +419,54 @@ function initTagsToggle() {
   50% { transform: translateX(0%); }  
   100% { transform: translateX(100%); }  
 }  
+</style>
+
+<style>
+  .avatar-light-frame {
+    position: relative;
+    padding: 3px;
+    overflow: hidden;
+    border-radius: 1.35rem;
+    isolation: isolate;
+    box-shadow:
+      0 0 18px rgb(34 211 238 / 35%),
+      0 0 34px rgb(244 114 182 / 20%);
+  }
+
+  .avatar-light-frame::before {
+    content: "";
+    position: absolute;
+    inset: -60%;
+    z-index: 0;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      #22d3ee 55deg,
+      #ffffff 85deg,
+      #fb7185 120deg,
+      transparent 190deg,
+      transparent 290deg,
+      #818cf8 330deg,
+      transparent 360deg
+    );
+    animation: avatar-light-spin 4.5s linear infinite;
+  }
+
+  .avatar-light-frame > a {
+    position: relative;
+    z-index: 1;
+    background: var(--custom-page-bg);
+  }
+
+  @keyframes avatar-light-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .avatar-light-frame::before {
+      animation: none;
+    }
+  }
 </style>

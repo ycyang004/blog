@@ -37,7 +37,8 @@ const SOCIAL_PRESETS = [
 
 const COMMENT_PROVIDERS = [
     { value: 'giscus', label: 'Giscus' },
-    { value: 'waline', label: 'Waline' }
+    { value: 'waline', label: 'Waline' },
+    { value: 'supabase', label: 'Supabase' }
 ]
 
 export function ConfigPage() {

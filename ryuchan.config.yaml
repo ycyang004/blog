@@ -376,10 +376,10 @@ about:
           - 🧭 网站导航：分类整理常用工具和资源链接
           - 👥 友链展示：展示朋友们的优秀博客和项目
           - 📊 数据统计：集成 Umami 分析，了解网站访问情况
-          - 💬 评论系统：支持 Giscus 和 Waline，与读者互动交流
+          - 💬 评论系统：支持 Supabase 登录评论，与读者互动交流
 comments:
-  enable: false
-  type: giscus
+  enable: true
+  type: supabase
   giscus:
     repo: kobaridev/gsc
     repoId: R_kgDOPTM-mA

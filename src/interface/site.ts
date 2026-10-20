@@ -24,7 +24,7 @@ export interface WalineConfig {
 
 export interface CommentsConfig {
   enable: boolean;
-  type: 'giscus' | 'waline' | 'none';
+  type: 'giscus' | 'waline' | 'supabase' | 'none';
   giscus?: GiscusConfig;
   waline?: WalineConfig;
 }

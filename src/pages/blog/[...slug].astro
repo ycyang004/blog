@@ -10,6 +10,7 @@ import { DATE_FORMAT, SITE_TAB, USER_NAME } from "@config";
 import MainCard from "@/components/MainCard.astro";
 import Giscus from "@components/comments/Giscus.astro";
 import Waline from "@components/comments/Waline.astro";
+import SupabaseComments from "@components/comments/SupabaseComments";
 import { commentsConfig } from "@config";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
 
@@ -141,6 +142,14 @@ const structuredData = {
         <section class="comments">
           <h2>Comments</h2>
           <Waline {...commentsConfig.waline} />
+        </section>
+      )
+  }
+  {
+    commentsConfig?.enable &&
+      commentsConfig.type === "supabase" && (
+        <section class="comments">
+          <SupabaseComments slug={blog.slug} client:load />
         </section>
       )
   }
