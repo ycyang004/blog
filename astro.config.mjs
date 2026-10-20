@@ -15,8 +15,6 @@ import updateConfig from "./src/integration/updateConfig.ts";
 
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 
-import cloudflare from "@astrojs/cloudflare";
-
 // https://astro.build/config
 export default defineConfig({
   vite: {
@@ -236,6 +234,4 @@ export default defineConfig({
       },
     },
   },
-
-  adapter: cloudflare()
 });

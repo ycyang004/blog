@@ -1,11 +1,15 @@
 ---
 title: 农业指标数据分析
-description: ''
+description: 使用 Hive 对农业指标数据进行建表、查询与统计分析。
 pubDate: 2026-06-04T17:03
 image: /images/md/ea936379fff85bd7.webp
 draft: false
-tags: []
-categories: []
+tags:
+  - Hive
+  - SQL
+  - 农业数据
+categories:
+  - 数据分析
 ---
 <h1>🚜农业指标数据分析任务</h1>
 <h3>📄数据说明</h3>

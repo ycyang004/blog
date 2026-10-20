@@ -4,6 +4,6 @@ import { NavigationConfigPage } from '@/components/write/NavigationConfigPage';
 import { NAV_CATEGORIES } from '@/config';
 ---
 
-<BaseLayout title="导航配置" showSidebar={false} showBanner={false} isIndexed={false}>
+<BaseLayout title="导航配置" showSidebar={false} showBanner={false} isIndexed={false} noindex={true}>
     <NavigationConfigPage client:only="react" initialCategories={NAV_CATEGORIES} />
 </BaseLayout>
