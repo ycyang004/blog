@@ -24,7 +24,7 @@ export interface WalineConfig {
 
 export interface CommentsConfig {
   enable: boolean;
-  type: 'giscus' | 'waline' | 'none';
+  type: 'giscus' | 'waline' | 'supabase' | 'none';
   giscus?: GiscusConfig;
   waline?: WalineConfig;
 }
@@ -60,15 +60,6 @@ export interface SocialIcon {
 
 export interface BlogConfig {
   pageSize: number;
-}
-
-export interface TmdbConfig {
-  apiKey: string;
-  listId: string;
-}
-
-export interface BilibiliConfig {
-  uid: string;
 }
 
 export interface GithubConfig {
@@ -171,11 +162,6 @@ export interface Translations {
   [language: string]: LanguageTranslation;
 }
 
-export interface AnimeConfig {
-  bilibili?: BilibiliConfig;
-  tmdb?: TmdbConfig;
-}
-
 // 导航配置类型
 export interface NavItem {
   name: string;
@@ -264,7 +250,6 @@ export interface Config {
   user: UserConfig;
   umami?: UmamiConfig;
   comments?: CommentsConfig;
-  anime?: AnimeConfig;
   github?: GithubConfig;
   navigation?: NavigationConfig;
   project?: ProjectConfig;

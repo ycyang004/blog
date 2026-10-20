@@ -37,11 +37,12 @@ const SOCIAL_PRESETS = [
 
 const COMMENT_PROVIDERS = [
     { value: 'giscus', label: 'Giscus' },
-    { value: 'waline', label: 'Waline' }
+    { value: 'waline', label: 'Waline' },
+    { value: 'supabase', label: 'Supabase' }
 ]
 
-export function ConfigPage() {
-    const [configContent, setConfigContent] = useState('')
+export function ConfigPage({ initialConfig = '' }: { initialConfig?: string }) {
+    const [configContent, setConfigContent] = useState(initialConfig)
     const [lastFetchedContent, setLastFetchedContent] = useState<string | null>(null)
     const [isDirty, setIsDirty] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -109,7 +110,9 @@ export function ConfigPage() {
                 setLastFetchedContent(content)
             }
         } catch (error: any) {
-            toast.error('加载配置失败: ' + error.message)
+            if (!initialConfig) {
+                toast.error('加载配置失败: ' + error.message)
+            }
         } finally {
             setLoading(false)
         }
@@ -612,60 +615,13 @@ export function ConfigPage() {
                                     </div>
                                 </div>
 
-                                {/* Features: Bangumi & TMDB */}
+                                {/* Feature integrations */}
                                 <div className="space-y-6">
                                     <div className="flex items-center gap-2 pb-2 border-b border-base-200">
                                         <h3 className="font-bold text-lg text-primary">功能配置</h3>
                                     </div>
 
                                     <div className="card bg-base-100 shadow-sm border border-base-200 p-6 rounded-2xl space-y-8">
-                                        {/* Bilibili Bangumi */}
-                                        <div className="space-y-3">
-                                            <div className="flex items-center gap-2">
-                                                <div className="badge badge-primary badge-outline">Bilibili</div>
-                                                <span className="text-sm font-medium">追番列表</span>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-4">
-                                                <div className="form-control w-full">
-                                                    <label className="label"><span className="label-text text-xs text-base-content/60">
-                                                        Bilibili UID
-                                                        {!isAuth && <span className="ml-1 text-warning">🔒</span>}
-                                                    </span></label>
-                                                    <input type={isAuth ? "text" : "password"} className="input input-bordered w-full bg-base-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                                                        placeholder={isAuth ? "例如：1536411565" : "需要验证后查看"}
-                                                        disabled={!isAuth}
-                                                        value={parsedConfig?.anime?.bilibili?.uid || parsedConfig?.site?.bilibili?.uid || ''}
-                                                        onChange={e => updateConfigValue('anime.bilibili.uid', e.target.value)} />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="divider my-0"></div>
-
-                                        {/* TMDB */}
-                                        <div className="space-y-3">
-                                            <div className="flex items-center gap-2">
-                                                <div className="badge badge-secondary badge-outline">TMDB</div>
-                                                <span className="text-sm font-medium">电影/剧集</span>
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                                <div className="form-control w-full">
-                                                    <label className="label"><span className="label-text text-xs text-base-content/60">API Key</span></label>
-                                                    <input type="text" className="input input-bordered w-full bg-base-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                                                        value={parsedConfig?.anime?.tmdb?.apiKey || parsedConfig?.site?.tmdb?.apiKey || ''}
-                                                        onChange={e => updateConfigValue('anime.tmdb.apiKey', e.target.value)} />
-                                                </div>
-                                                <div className="form-control w-full">
-                                                    <label className="label"><span className="label-text text-xs text-base-content/60">List ID</span></label>
-                                                    <input type="text" className="input input-bordered w-full bg-base-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                                                        value={parsedConfig?.anime?.tmdb?.listId || parsedConfig?.site?.tmdb?.listId || ''}
-                                                        onChange={e => updateConfigValue('anime.tmdb.listId', e.target.value)} />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="divider my-0"></div>
-
                                         {/* Meting API */}
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-2">

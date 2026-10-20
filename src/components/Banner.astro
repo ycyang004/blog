@@ -22,7 +22,7 @@ if (currentPath === "/") {
 ) {
   pageKey = "home"; // 博客详情页也用 home 配置
 } else {
-  // 其它页面如 /anime、/friend、/project、/navigation 等
+  // 其它页面如 /friend、/project、/navigation 等
   pageKey = currentPath.replace(/^\//, "");
 }
 
@@ -50,26 +50,51 @@ const hasSubtitle = displaySubtitle !== undefined && displaySubtitle !== "";
 
 const bannerHeight = BANNER_HEIGHT;
 
-// 随机图 API 配置
+// Banner 图片来源
 const RANDOM_API_URL = BANNER_CONFIG?.randomUrl;
-// 首屏图片：服务端生成一个随机种子，确保每次刷新（或构建）时有一张初始图
-const initialRandomImage = `${RANDOM_API_URL}?t=${Date.now()}`;
+const ENABLE_RANDOM_BANNER = Boolean(
+  BANNER_CONFIG?.enableRandom && RANDOM_API_URL,
+);
+const BANNER_IMAGES = BANNER_CONFIG?.images || [];
+// 固定 Banner 使用首张本地图片，随机 Banner 才请求远程 API
+const initialBannerImage = ENABLE_RANDOM_BANNER
+  ? `${RANDOM_API_URL}?t=${Date.now()}`
+  : BANNER_IMAGES[0] || "";
 ---
 
 <div id="banner" class="banner">
   <div class="banner-inner h-full w-full relative overflow-hidden">
     <!-- 背景层：当前显示的图片 -->
-    <div 
-      id="banner-bg-current"
-      class="absolute left-0 top-0 h-full w-full bg-cover bg-center bg-no-repeat z-0 transition-opacity duration-1000"
-      style={{ backgroundImage: `url(${initialRandomImage})` }}
-    ></div>
+    {
+      ENABLE_RANDOM_BANNER ? (
+        <div
+          id="banner-bg-current"
+          class="absolute left-0 top-0 h-full w-full bg-cover bg-center bg-no-repeat z-0 transition-opacity duration-1000"
+          style={{ backgroundImage: `url(${initialBannerImage})` }}
+        />
+      ) : initialBannerImage ? (
+        <img
+          id="banner-bg-current"
+          src={initialBannerImage}
+          alt=""
+          width="1920"
+          height="1080"
+          fetchpriority="high"
+          decoding="async"
+          class="absolute left-0 top-0 h-full w-full object-cover object-center z-0"
+        />
+      ) : null
+    }
 
     <!-- 背景层：下一张预加载的图片 (初始隐藏) -->
-    <div 
-      id="banner-bg-next"
-      class="absolute left-0 top-0 h-full w-full bg-cover bg-center bg-no-repeat z-0 opacity-0 transition-opacity duration-1000"
-    ></div>
+    {
+      ENABLE_RANDOM_BANNER && (
+        <div
+          id="banner-bg-next"
+          class="absolute left-0 top-0 h-full w-full bg-cover bg-center bg-no-repeat z-0 opacity-0 transition-opacity duration-1000"
+        />
+      )
+    }
 
     <!-- 遮罩层 -->
     <div class="absolute left-0 top-0 z-10 h-full w-full transition-colors duration-300 bg-black/40"></div>
@@ -211,6 +236,7 @@ const initialRandomImage = `${RANDOM_API_URL}?t=${Date.now()}`;
 </script>
 
 <!-- 随机图轮播脚本 -->
+{ENABLE_RANDOM_BANNER && (
 <script define:vars={{ RANDOM_API_URL }} is:inline>
   document.addEventListener("astro:page-load", () => {
     const bgCurrent = document.getElementById("banner-bg-current");
@@ -363,6 +389,7 @@ const initialRandomImage = `${RANDOM_API_URL}?t=${Date.now()}`;
     }, { once: true });
   });
 </script>
+)}
 
 <style define:vars={{ bannerHeight }}>
   .banner {

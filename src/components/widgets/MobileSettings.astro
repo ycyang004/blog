@@ -40,6 +40,14 @@ const themes = [
     <Icon name="material-symbols:settings-outline" class="w-6 h-6" />
   </div>
   <ul tabindex="0" class="dropdown-content z-[100] menu p-2 shadow-2xl bg-base-200 rounded-box w-64 mt-4">
+    <!-- Site configuration -->
+    <li>
+      <a href="/config/" class="flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg w-full">
+        <Icon name="material-symbols:settings-outline" class="w-5 h-5" />
+        <span class="font-medium">站点配置</span>
+      </a>
+    </li>
+
     <!-- Dark/Light Toggle -->
     <li>
       <button id="mobile-theme-toggle" class="flex justify-between items-center gap-2 p-2 hover:bg-base-300 rounded-lg w-full">
@@ -48,6 +56,14 @@ const themes = [
           <Icon name="line-md:moon-alt-to-sunny-outline-loop-transition" class="w-5 h-5 light-icon" />
           <Icon name="line-md:sunny-outline-to-moon-alt-loop-transition" class="w-5 h-5 dark-icon hidden" />
         </div>
+      </button>
+    </li>
+
+    <!-- Profile title and glow settings -->
+    <li id="mobile-profile-settings-item" class="hidden">
+      <button id="mobile-profile-settings-open" class="flex items-center gap-2 p-2 hover:bg-base-300 rounded-lg w-full">
+        <Icon name="material-symbols:auto-awesome-outline" class="w-5 h-5" />
+        <span class="font-medium">头像与称号</span>
       </button>
     </li>
 
@@ -87,16 +103,6 @@ const themes = [
           </li>
         </ul>
       </details>
-    </li>
-
-    <!-- Config Button -->
-    <li>
-      <a href="/config" class="flex justify-between items-center p-2 hover:bg-base-300 rounded-lg w-full">
-        <div class="flex items-center gap-2">
-          <Icon name="material-symbols:settings-outline" class="w-5 h-5" />
-          <span class="font-medium">站点配置</span>
-        </div>
-      </a>
     </li>
 
     <!-- Theme Selector -->

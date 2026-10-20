@@ -5,10 +5,14 @@ import { usePreviewStore } from './stores/preview-store'
 import { WriteEditor } from './components/editor'
 import { WriteSidebar } from './components/sidebar'
 import { WriteActions } from './components/actions'
-import { WritePreview } from './components/preview'
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { Toaster } from 'sonner'
 import { useLoadBlog } from './hooks/use-load-blog'
+
+const WritePreview = lazy(async () => {
+    const module = await import('./components/preview')
+    return { default: module.WritePreview }
+})
 
 type WritePageProps = {
     categories?: string[]
@@ -62,7 +66,9 @@ export default function WritePage({ categories = [] }: WritePageProps) {
                 }}
             />
             {isPreview ? (
-                <WritePreview form={form} coverPreviewUrl={coverPreviewUrl} onClose={closePreview} slug={slug || undefined} />
+                <Suspense fallback={<div className="fixed inset-0 z-[100] grid place-items-center bg-base-200/90 text-sm opacity-70">正在加载预览...</div>}>
+                    <WritePreview form={form} coverPreviewUrl={coverPreviewUrl} onClose={closePreview} slug={slug || undefined} />
+                </Suspense>
             ) : (
                 <>
                     <div className='flex flex-col md:flex-row h-full justify-center gap-6 px-4 md:px-6 pt-24 pb-12'>

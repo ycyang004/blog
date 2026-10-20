@@ -1,12 +1,14 @@
 ---
 title: First Blog
-description: ''
+description: 记录 RyuChan 博客的搭建过程与部署配置。
 pubDate: 2026-05-09T01:13
-image: >-
-  https://img.shiyangya.dpdns.org/file/pc/1777964091329_fe083a62f145572a9b1c7705e77979f1.webp
+image: /images/blog/fb-cover.webp
 draft: false
-tags: []
-categories: []
+tags:
+  - 博客
+  - 建站
+categories:
+  - 随笔
 badge: ''
 ---
 迫于室友小张的**蛊惑**😨😨于今日开始正式搭建这个博客。

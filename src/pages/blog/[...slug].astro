@@ -6,13 +6,13 @@ import PostFilter from "@components/widgets/PostFilter.astro";
 import PostNavigation from "@components/widgets/PostNavigation.astro";
 import { type CollectionEntry, getCollection } from "astro:content";
 import dayjs from "@utils/dayjs";
-import { DATE_FORMAT } from "@config";
+import { DATE_FORMAT, SITE_TAB, USER_NAME } from "@config";
 import MainCard from "@/components/MainCard.astro";
 import Giscus from "@components/comments/Giscus.astro";
 import Waline from "@components/comments/Waline.astro";
+import SupabaseComments from "@components/comments/SupabaseComments";
 import { commentsConfig } from "@config";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
-import { Icon } from "astro-icon/components";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -47,7 +47,27 @@ const { Content, remarkPluginFrontmatter, headings } = await blog.render();
 const displayDate = blog.data.pubDate
   ? dayjs(blog.data.pubDate).format(DATE_FORMAT)
   : "";
-const url = new URL(`/blog/${blog.slug}`, Astro.url.origin);
+const url = new URL(`/blog/${blog.slug}/`, Astro.site ?? Astro.url.origin);
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: blog.data.title,
+  description: blog.data.description,
+  image: blog.data.image
+    ? [new URL(blog.data.image, Astro.site ?? Astro.url.origin).toString()]
+    : undefined,
+  datePublished: blog.data.pubDate.toISOString(),
+  dateModified: (blog.data.updated ?? blog.data.pubDate).toISOString(),
+  mainEntityOfPage: url.toString(),
+  author: {
+    "@type": "Person",
+    name: USER_NAME,
+  },
+  publisher: {
+    "@type": "Organization",
+    name: SITE_TAB,
+  },
+};
 ---
 
 <BaseLayout
@@ -56,6 +76,7 @@ const url = new URL(`/blog/${blog.slug}`, Astro.url.origin);
   headings={headings}
   showTOC={true}
   isPostPage={true}
+  structuredData={structuredData}
 >
   <MainCard
     title={blog.data.title}
@@ -63,12 +84,6 @@ const url = new URL(`/blog/${blog.slug}`, Astro.url.origin);
     image={blog.data.image}
     infoIcon="lucide:info"
   >
-    <div class="flex justify-end">
-      <a href={`/write?slug=${blog.slug}`} class="btn btn-primary btn-sm text-white" aria-label="Edit Article">
-        <Icon name="lucide:edit" class="w-4 h-4" />
-        <span class="hidden sm:inline">Edit</span>
-      </a>
-    </div>
     <!-- Article info using PostInfo component -->
     <PostInfo
       pubDate={displayDate}
@@ -127,6 +142,14 @@ const url = new URL(`/blog/${blog.slug}`, Astro.url.origin);
         <section class="comments">
           <h2>Comments</h2>
           <Waline {...commentsConfig.waline} />
+        </section>
+      )
+  }
+  {
+    commentsConfig?.enable &&
+      commentsConfig.type === "supabase" && (
+        <section class="comments">
+          <SupabaseComments slug={blog.slug} client:load />
         </section>
       )
   }

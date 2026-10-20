@@ -3,6 +3,8 @@ import { SITE_DESCRIPTION, SITE_LANGUAGE, SITE_TAB, SITE_TITLE } from "@config";
 import { getCollection } from "astro:content";
 import { marked } from "marked";
 
+export const prerender = true;
+
 export async function GET(context: any) {
   const allPosts = await getCollection("blog");
   // Filter out draft posts in production mode
